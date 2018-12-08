@@ -27,7 +27,8 @@ defmodule MasterProxy.Plug do
   end
 
   defp backend_matches?(conn, backend) do
-    conn.host == backend[:host]
+    {:ok, host_regex} = Regex.compile(backend[:host])
+    Regex.match?(host_regex, conn.host)
   end
 end
 
