@@ -4,7 +4,7 @@ defmodule MasterProxy.PlugTest do
   use ExUnitProperties
 
   test "no backend matches" do
-    opts = %{backends: [%{host: "^gigalixir.readthedocs.io$", plug: ""}]}
+    opts = %{backends: [%{host: ~r/gigalixir.readthedocs.io/, plug: ""}]}
 
     conn =
       conn(:get, "/")
@@ -33,7 +33,7 @@ defmodule MasterProxy.PlugTest do
   property "all hosts match themselves" do
     # TODO: include hyphens?
     check all host <- host_generator do
-      conn = matches_host?(host, host)
+      conn = matches_host?(Regex.compile!(host), host)
       assert conn.status == 200
     end
   end
@@ -47,14 +47,14 @@ defmodule MasterProxy.PlugTest do
 
   property "all hosts match subset" do
     check all host <- host_generator do
-      conn = matches_host?(String.slice(host, 1..-1), host)
+      conn = matches_host?(Regex.compile!(String.slice(host, 1..-1)), host)
       assert conn.status == 200
     end
   end
 
   property "all hosts match empty string" do
     check all host <- host_generator do
-      conn = matches_host?("", host)
+      conn = matches_host?(Regex.compile!(""), host)
       assert conn.status == 200
     end
   end
