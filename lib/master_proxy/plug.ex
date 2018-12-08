@@ -1,15 +1,23 @@
 defmodule MasterProxy.Plug do
-  import Plug.Conn
+  require Logger
 
   def init(options) do
     options
   end
 
-  def call(conn, _opts) do
+  def call(conn, opts) do
     # TODO: fill this in.
-    conn
-    |> put_resp_content_type("text/plain")
-    |> send_resp(200, "Hello world")
+    Logger.debug "MasterProxy.Plug call opts: #{inspect opts}"
+    backend = choose_backend(conn, opts[:backends])
+    dispatch(conn, backend)
+  end
+
+  defp choose_backend(_conn, backends) do
+    List.first(backends)
+  end
+
+  defp dispatch(conn, backend) do
+    backend[:plug].call(conn, backend[:opts])
   end
 end
 
