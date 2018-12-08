@@ -11,5 +11,4 @@ defmodule MasterProxy.Plug.NotFound do
     conn
     |> send_resp(404, "No backends matched")
   end
-
 end

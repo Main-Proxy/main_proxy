@@ -27,7 +27,7 @@ defmodule MasterProxy.Plug do
   end
 
   defp backend_matches?(conn, backend) do
-    false
+    conn.host == backend[:host]
   end
 end
 
