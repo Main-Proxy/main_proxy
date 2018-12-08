@@ -1,11 +1,12 @@
 # MasterProxy
 
-**TODO: Add description**
+Proxies requests to Web apps that are part of the platform. Useful for Heroku deployment when just one web port is exposed.
+
+This application is based on the [master_proxy](https://github.com/wojtekmach/acme_bank/tree/master/apps/master_proxy) application inside the [acme_bank](https://github.com/wojtekmach/acme_bank) project, which was based on a gist shared by @Gazler.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `master_proxy` to your list of dependencies in `mix.exs`:
+Add `master_proxy` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -14,8 +15,4 @@ def deps do
   ]
 end
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/master_proxy](https://hexdocs.pm/master_proxy).
 
