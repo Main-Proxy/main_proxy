@@ -22,8 +22,6 @@ defmodule MasterProxy.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:plug, "~> 1.7.1"},
-      {:cowboy, "~> 2.6.1"},
       {:plug_cowboy, "~> 2.0.0"}
     ]
   end
