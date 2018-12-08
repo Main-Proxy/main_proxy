@@ -23,7 +23,8 @@ defmodule MasterProxy.MixProject do
   defp deps do
     [
       {:plug, "~> 1.7.1"},
-      {:cowboy, "~> 2.6.1"}
+      {:cowboy, "~> 2.6.1"},
+      {:plug_cowboy, "~> 2.0.0"}
     ]
   end
 end

@@ -1,19 +1,16 @@
 defmodule MasterProxy.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
   @moduledoc false
-
   use Application
 
   def start(_type, _args) do
-    # List all child processes to be supervised
+    import Supervisor.Spec, warn: false
+
+    port = (System.get_env("PORT") || "3333") |> String.to_integer
+
     children = [
-      # Starts a worker by calling: MasterProxy.Worker.start_link(arg)
-      # {MasterProxy.Worker, arg},
+      {Plug.Cowboy, scheme: :http, plug: MasterProxy.Plug, options: [port: port]}
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: MasterProxy.Supervisor]
     Supervisor.start_link(children, opts)
   end
