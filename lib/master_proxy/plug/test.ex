@@ -1,4 +1,4 @@
-defmodule Foo.Endpoint do
+defmodule MasterProxy.Plug.Test do
   import Plug.Conn
   require Logger
 
@@ -7,10 +7,9 @@ defmodule Foo.Endpoint do
   end
 
   def call(conn, opts) do
-    Logger.debug "Foo.Endpoint call opts: #{inspect opts}"
     conn
     |> put_resp_content_type("text/plain")
-    |> send_resp(200, "Hello world")
+    |> send_resp(200, "Test")
   end
 
 end
