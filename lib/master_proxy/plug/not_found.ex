@@ -7,7 +7,8 @@ defmodule MasterProxy.Plug.NotFound do
   end
 
   def call(conn, opts) do
-    Logger.debug "MasterProxy.NotFound call opts: #{inspect opts}"
+    Logger.debug("MasterProxy.NotFound call opts: #{inspect(opts)}")
+
     conn
     |> send_resp(404, "No backends matched")
   end

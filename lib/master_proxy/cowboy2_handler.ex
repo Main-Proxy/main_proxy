@@ -12,7 +12,7 @@ defmodule MasterProxy.Cowboy2Handler do
   # endpoint and opts are not passed in because they
   # are dynamically chosen
   def init(req, {_endpoint, _opts}) do
-    Logger.debug "MasterProxy.Cowboy2Handler called with req: #{inspect req}"
+    Logger.debug("MasterProxy.Cowboy2Handler called with req: #{inspect(req)}")
 
     conn = @connection.conn(req)
 
@@ -20,7 +20,7 @@ defmodule MasterProxy.Cowboy2Handler do
     backends = Application.get_env(:master_proxy, :backends)
 
     backend = choose_backend(conn, backends)
-    Logger.debug "Backend chosen: #{inspect backend}"
+    Logger.debug("Backend chosen: #{inspect(backend)}")
 
     dispatch(backend, req)
   end
@@ -37,7 +37,7 @@ defmodule MasterProxy.Cowboy2Handler do
     Phoenix.Endpoint.Cowboy2Handler.init(req, {endpoint, endpoint.init([])})
   end
 
-  defp dispatch(%{plug: plug}=backend, req) do
+  defp dispatch(%{plug: plug} = backend, req) do
     conn = @connection.conn(req)
 
     opts = Map.get(backend, :opts, [])
@@ -45,7 +45,7 @@ defmodule MasterProxy.Cowboy2Handler do
 
     # Copied from https://github.com/phoenixframework/phoenix/blob/master/lib/phoenix/endpoint/cowboy2_handler.ex
     %{adapter: {@connection, req}} =
-                  conn
+      conn
       |> handler.call(opts)
       |> maybe_send(handler)
 
@@ -56,16 +56,18 @@ defmodule MasterProxy.Cowboy2Handler do
   defp maybe_send(%Plug.Conn{state: :unset}, _plug), do: raise(Plug.Conn.NotSentError)
   defp maybe_send(%Plug.Conn{state: :set} = conn, _plug), do: Plug.Conn.send_resp(conn)
   defp maybe_send(%Plug.Conn{} = conn, _plug), do: conn
+
   defp maybe_send(other, plug) do
-    raise "MasterProxy expected #{inspect(plug)} to return Plug.Conn but got: " <>
-            inspect(other)
+    raise "MasterProxy expected #{inspect(plug)} to return Plug.Conn but got: " <> inspect(other)
   end
 
   defp backend_matches?(conn, backend) do
     verb = Map.get(backend, :verb) || ~r/.*/
     host = Map.get(backend, :host) || ~r/.*/
     path = Map.get(backend, :path) || ~r/.*/
-    Regex.match?(host, conn.host) && Regex.match?(path, conn.request_path) && Regex.match?(verb, conn.method)
+
+    Regex.match?(host, conn.host) && Regex.match?(path, conn.request_path) &&
+      Regex.match?(verb, conn.method)
   end
 
   ## Websocket callbacks
@@ -114,6 +116,9 @@ defmodule MasterProxy.Cowboy2Handler do
 
   defp handle_reply(handler, {:ok, state}), do: {:ok, [handler | state]}
   defp handle_reply(handler, {:push, data, state}), do: {:reply, data, [handler | state]}
-  defp handle_reply(handler, {:reply, _status, data, state}), do: {:reply, data, [handler | state]}
+
+  defp handle_reply(handler, {:reply, _status, data, state}),
+    do: {:reply, data, [handler | state]}
+
   defp handle_reply(handler, {:stop, _reason, state}), do: {:stop, [handler | state]}
 end

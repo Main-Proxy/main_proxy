@@ -2,7 +2,7 @@ use Mix.Config
 
 # config :logger, level: :info
 
-config :master_proxy, 
+config :master_proxy,
   http: [:inet6, port: System.get_env("PORT") || 4000],
   backends: [
     # %{
