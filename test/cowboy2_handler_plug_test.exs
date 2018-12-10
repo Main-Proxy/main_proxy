@@ -23,12 +23,6 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
   end
 
   defp matches_host?(backend_host, conn_host) do
-    # opts = %{backends: [%{host: backend_host, plug: MasterProxy.Plug.Test}]}
-
-    # conn(:get, "/")
-    # |> Map.put(:host, conn_host)
-    # |> MasterProxy.Plug.call(MasterProxy.Plug.init(opts))
-
     backends = [%{host: backend_host, plug: MasterProxy.Plug.Test}]
     Application.put_env(:master_proxy, :backends, backends)
 
@@ -46,11 +40,79 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
     end
   end
 
+  defp matches_path?(backend_path, conn_path) do
+    backends = [%{path: backend_path, plug: MasterProxy.Plug.Test}]
+    Application.put_env(:master_proxy, :backends, backends)
+
+    # these are the required params..
+    req = build_req("http", "GET", "localhost", conn_path)
+    {:ok, _req, {_handler, _opts}} = MasterProxy.Cowboy2Handler.init(req, {nil, nil})
+
+    my_pid = self()
+    stream_id = 1
+    receive do
+      {{my_pid, stream_id}, {:response, status, headers, body}} -> {status, headers, body}
+      # otherwise -> IO.inspect otherwise
+    after
+      0 -> flunk("timed out")
+    end
+  end
+
+  defp matches_verb?(backend_verb, conn_verb) do
+    backends = [%{verb: backend_verb, plug: MasterProxy.Plug.Test}]
+    Application.put_env(:master_proxy, :backends, backends)
+
+    # these are the required params..
+    req = build_req("http", conn_verb, "localhost", "/")
+    {:ok, _req, {_handler, _opts}} = MasterProxy.Cowboy2Handler.init(req, {nil, nil})
+
+    my_pid = self()
+    stream_id = 1
+    receive do
+      {{my_pid, stream_id}, {:response, status, headers, body}} -> {status, headers, body}
+      # otherwise -> IO.inspect otherwise
+    after
+      0 -> flunk("timed out")
+    end
+  end
+
+  defp matches_all?(backend_verb, backend_host, backend_path, conn_verb, conn_host, conn_path) do
+    backends = [%{
+      verb: backend_verb, 
+      host: backend_host, 
+      path: backend_path, 
+      plug: MasterProxy.Plug.Test
+    }]
+    Application.put_env(:master_proxy, :backends, backends)
+
+    # these are the required params..
+    req = build_req("http", conn_verb, conn_host, conn_path)
+    {:ok, _req, {_handler, _opts}} = MasterProxy.Cowboy2Handler.init(req, {nil, nil})
+
+    my_pid = self()
+    stream_id = 1
+    receive do
+      {{my_pid, stream_id}, {:response, status, headers, body}} -> {status, headers, body}
+      # otherwise -> IO.inspect otherwise
+    after
+      0 -> flunk("timed out")
+    end
+  end
+
+
   defp host_generator do
     # TODO: include hyphens?
     gen all domain <- string(:alphanumeric) do
       "#{domain}.com"
     end
+  end
+
+  defp path_generator do
+    string([?a..?z, ?/, ?0..?9])
+  end
+
+  defp verb_generator do
+    member_of(["get", "post", "put", "head", "delete", "patch"])
   end
 
   property "all hosts match themselves" do
@@ -89,6 +151,51 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
     end
   end
 
+  property "all paths match prefix" do
+    check all path <- path_generator do
+      {status, _headers, _body} = matches_path?(Regex.compile!("^" <> String.slice(path, 0..1)), path)
+      assert status == "200 OK"
+    end
+  end
+
+  property "all verbs match case insensitively" do
+    check all verb <- verb_generator do
+      {status, _headers, _body} = matches_verb?(Regex.compile!(verb, [:caseless]), String.upcase(verb))
+      assert status == "200 OK"
+    end
+  end
+
+  property "verb and host and path all exact match" do
+    check all host <- host_generator,
+      path <- path_generator,
+      verb <- verb_generator do
+        {status, _headers, _body} = matches_all?(
+          Regex.compile!(verb), 
+          Regex.compile!(host), 
+          Regex.compile!(path), 
+          verb,
+          host,
+          path
+        )
+        assert status == "200 OK"
+    end
+  end
+
+  property "verb and host and path with one off" do
+    check all host <- host_generator,
+      path <- path_generator,
+      verb <- verb_generator do
+        {status, _headers, _body} = matches_all?(
+          Regex.compile!(verb), 
+          Regex.compile!(host), 
+          Regex.compile!(path), 
+          verb,
+          String.slice(host, 0..1) <> "rando",
+          path
+        )
+        assert status == "404 Not Found"
+    end
+  end
 
   def pid_from_string("#PID" <> string) do
     string

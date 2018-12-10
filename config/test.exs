@@ -1,7 +1,6 @@
 use Mix.Config
 
 config :master_proxy,
-  # conn: MasterProxy.Test.Adapter
   conn: Plug.Cowboy.Conn
 
 config :master_proxy, MasterProxy.Test.Endpoint,
