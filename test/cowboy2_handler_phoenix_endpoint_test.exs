@@ -1,9 +1,19 @@
-defmodule MasterProxy.Cowboy2HandlerTest do
+defmodule MasterProxy.Cowboy2HandlerPhoenixEndpointTest do
   use ExUnit.Case
   use Plug.Test
   use ExUnitProperties
 
   @connection Plug.Cowboy.Conn
+
+  setup do
+    {:ok, pid} = start_supervised(MasterProxy.Test.Endpoint)
+    # children = [
+    #   MasterProxy.Test.Endpoint
+    # ]
+    # opts = [strategy: :one_for_one, name: MasterProxy.Test.Supervisor]
+    # {:ok, pid} = Supervisor.start_link(children, opts)
+    {:ok, pid: pid}
+  end
 
   defp build_req(scheme, method, host, path, headers \\ %{}) do
     req = %{
@@ -16,29 +26,10 @@ defmodule MasterProxy.Cowboy2HandlerTest do
       peer: {{0, 0, 0, 0, 0, 65535, 32512, 1}, 49020},
       scheme: scheme,
       version: :"HTTP/1.1",
-      cert: :undefined,
+      streamid: 1,
+      pid: self(),
+      cert: :undefined
     }
-  end
-
-  test "no backend matches" do
-    backends = [%{host: ~r/gigalixir.readthedocs.io/, plug: ""}]
-    Application.put_env(:master_proxy, :backends, backends)
-
-    # these are the required params..
-    req = build_req("http", "GET", "localhost", "/")
-    {:ok, _req, {_handler, _opts}} = MasterProxy.Cowboy2Handler.init(req, {nil, nil})
-
-    receive do
-      {ref, {status, headers, body}} -> assert status == 404
-    after
-      1_000 -> flunk "timed out"
-    end
-
-    receive do
-      {:plug_conn, :sent} -> assert true
-    after
-      1_000 -> flunk "timed out"
-    end
   end
 
   defp matches_host?(backend_host, conn_host) do
@@ -48,25 +39,21 @@ defmodule MasterProxy.Cowboy2HandlerTest do
     # |> Map.put(:host, conn_host)
     # |> MasterProxy.Plug.call(MasterProxy.Plug.init(opts))
 
-    backends = [%{host: backend_host, plug: MasterProxy.Plug.Test}]
+    backends = [%{host: backend_host, phoenix_endpoint: MasterProxy.Test.Endpoint}]
     Application.put_env(:master_proxy, :backends, backends)
 
     # these are the required params..
     req = build_req("http", "GET", conn_host, "/")
-    {:ok, _req, {_handler, _opts}} = MasterProxy.Cowboy2Handler.init(req, {nil, nil})
+    {:ok, req, {_handler, _opts}} = MasterProxy.Cowboy2Handler.init(req, {nil, nil})
 
+    my_pid = self()
+    stream_id = 1
     receive do
-      {ref, {status, headers, body}=response} -> response
+      {{my_pid, stream_id}, {:response, status, headers, body}} -> {status, headers, body}
+      # otherwise -> IO.inspect otherwise
     after
-      1_000 -> flunk "timed out"
+      0 -> flunk("timed out")
     end
-
-    # safe to ignore?
-    # receive do
-    #   {:plug_conn, :sent} -> assert true
-    # after
-    #   1_000 -> flunk "timed out"
-    # end
   end
 
   defp host_generator do
@@ -80,28 +67,35 @@ defmodule MasterProxy.Cowboy2HandlerTest do
     # TODO: include hyphens?
     check all host <- host_generator do
       {status, _headers, _body} = matches_host?(Regex.compile!(host), host)
-      assert status == 200
+      assert status == "200 OK"
     end
   end
 
   property "all hosts match unspecified host" do
     check all host <- host_generator do
       {status, _headers, _body} = matches_host?(nil, host)
-      assert status == 200
+      assert status == "200 OK"
     end
   end
 
   property "all hosts match subset" do
     check all host <- host_generator do
       {status, _headers, _body} = matches_host?(Regex.compile!(String.slice(host, 1..-1)), host)
-      assert status == 200
+      assert status == "200 OK"
     end
   end
 
   property "all hosts match empty string" do
     check all host <- host_generator do
       {status, _headers, _body} = matches_host?(Regex.compile!(""), host)
-      assert status == 200
+      assert status == "200 OK"
+    end
+  end
+
+  property "no hosts match" do
+    check all host <- host_generator do
+      {status, _headers, _body} = matches_host?(Regex.compile!("#{host}extra"), host)
+      assert status == "404 Not Found"
     end
   end
 

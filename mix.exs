@@ -29,7 +29,9 @@ defmodule MasterProxy.MixProject do
   defp deps do
     [
       {:plug_cowboy, "~> 2.0.0"},
-      {:stream_data, "~> 0.4.2", only: :test}
+      {:phoenix, "~> 1.4.0"},
+      {:stream_data, "~> 0.4.2", only: :test},
+      {:jason, "~> 1.0", only: :test}
     ]
   end
 end
