@@ -3,7 +3,10 @@ defmodule MasterProxy.Cowboy2Handler do
 
   @moduledoc false
 
-  @connection Plug.Cowboy.Conn
+  defp connection() do
+    Application.get_env(:master_proxy, :conn, Plug.Cowboy.Conn)
+  end
+
   @already_sent {:plug_conn, :sent}
   @not_found_backend %{
     plug: MasterProxy.Plug.NotFound
@@ -14,7 +17,7 @@ defmodule MasterProxy.Cowboy2Handler do
   def init(req, {_endpoint, _opts}) do
     Logger.debug("MasterProxy.Cowboy2Handler called with req: #{inspect(req)}")
 
-    conn = @connection.conn(req)
+    conn = connection().conn(req)
 
     # extract this and pass in as a param somehow
     backends = Application.get_env(:master_proxy, :backends)
@@ -38,13 +41,15 @@ defmodule MasterProxy.Cowboy2Handler do
   end
 
   defp dispatch(%{plug: plug} = backend, req) do
-    conn = @connection.conn(req)
+    conn = connection().conn(req)
 
     opts = Map.get(backend, :opts, [])
     handler = plug
 
     # Copied from https://github.com/phoenixframework/phoenix/blob/master/lib/phoenix/endpoint/cowboy2_handler.ex
-    %{adapter: {@connection, req}} =
+    c = connection()
+
+    %{adapter: {c, req}} =
       conn
       |> handler.call(opts)
       |> maybe_send(handler)

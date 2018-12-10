@@ -15,7 +15,7 @@ defmodule MasterProxy.Application do
 
           scheme_opts ->
             port = :proplists.get_value(:port, scheme_opts)
-            dispatch = [ {:_, [ { :_, MasterProxy.Cowboy2Handler, {nil, nil} } ]} ]
+            dispatch = [{:_, [{:_, MasterProxy.Cowboy2Handler, {nil, nil}}]}]
 
             opts =
               [
