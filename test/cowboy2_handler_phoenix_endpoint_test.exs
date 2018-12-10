@@ -48,9 +48,11 @@ defmodule MasterProxy.Cowboy2HandlerPhoenixEndpointTest do
 
     my_pid = self()
     stream_id = 1
+
     receive do
-      {{my_pid, stream_id}, {:response, status, headers, body}} -> {status, headers, body}
-      # otherwise -> IO.inspect otherwise
+      {{my_pid, stream_id}, {:response, status, headers, body}} ->
+        {status, headers, body}
+        # otherwise -> IO.inspect otherwise
     after
       0 -> flunk("timed out")
     end
