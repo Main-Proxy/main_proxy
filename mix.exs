@@ -30,8 +30,11 @@ defmodule MasterProxy.MixProject do
     [
       {:plug_cowboy, "~> 2.0.0"},
       {:phoenix, "~> 1.4.0"},
+
+      # test
       {:stream_data, "~> 0.4.2", only: :test},
-      {:jason, "~> 1.0", only: :test}
+      {:jason, "~> 1.0", only: :test},
+      {:websocket_client, git: "https://github.com/jeremyong/websocket_client.git", only: :test}
     ]
   end
 end

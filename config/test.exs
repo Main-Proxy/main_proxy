@@ -10,3 +10,6 @@ config :master_proxy, MasterProxy.Test.Endpoint,
   server: false
 
 config :phoenix, :json_library, Jason
+
+config :master_proxy,
+  http: [:inet6, port: 5907]
