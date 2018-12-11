@@ -65,9 +65,10 @@ defmodule MasterProxy.Integration.WebSocketTest do
   defmodule Endpoint do
     use Phoenix.Endpoint, otp_app: :phoenix
 
-    socket "/ws", UserSocket,
+    socket("/ws", UserSocket,
       websocket: [check_origin: ["//example.com"], timeout: 200],
       custom: :value
+    )
   end
 
   setup_all do

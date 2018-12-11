@@ -11,7 +11,6 @@ defmodule MasterProxy.Integration.WebsocketClient do
     :crypto.start()
     :ssl.start()
 
-    Logger.debug inspect url
     :websocket_client.start_link(
       String.to_charlist(url),
       __MODULE__,

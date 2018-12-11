@@ -5,6 +5,9 @@ defmodule MasterProxy.MixProject do
     [
       app: :master_proxy,
       version: "0.1.0",
+      description:
+        "Proxies requests to multiple apps. Useful for Gigalixir or Heroku deployment when just one web port is exposed. Works with phoenix endpoints, plugs, and websockets.",
+      package: package(),
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -25,11 +28,24 @@ defmodule MasterProxy.MixProject do
     ]
   end
 
+  defp package() do
+    [
+      name: "master_proxy",
+      files: ["lib", "mix.exs", "README.md", "LICENSE.md"],
+      maintainers: ["Jesse Shieh"],
+      licenses: ["MIT"],
+      links: %{GitHub: "https://github.com/jesseshieh/master_proxy"}
+    ]
+  end
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:plug_cowboy, "~> 2.0.0"},
       {:phoenix, "~> 1.4.0"},
+
+      # for hex.pm
+      {:ex_doc, ">= 0.0.0", only: :dev},
 
       # test
       {:stream_data, "~> 0.4.2", only: :test},
