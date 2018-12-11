@@ -1,6 +1,6 @@
 # MasterProxy
 
-Proxies requests to Web apps that are part of the platform. Useful for Heroku deployment when just one web port is exposed.
+Proxies requests to Web apps that are part of the platform. Useful for Gigalixir or Heroku deployment when just one web port is exposed.
 
 Works with phoenix endpoints, plugs, and websockets.
 
