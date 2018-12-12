@@ -23,7 +23,8 @@ Configure how master_proxy should route requests by adding something like this i
 ```elixir
 config :master_proxy, 
   # any cowboy options are allowed 
-  http: [:inet6, port: 4001],
+  http: [:inet6, port: 4080],
+  https: [:inet6, port: 4443],
   backends: [
     %{
       host: ~r/localhost/,
