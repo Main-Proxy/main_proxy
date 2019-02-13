@@ -50,6 +50,6 @@ config :master_proxy,
 
 ```bash
 mix run --no-halt
-curl -i foo.com.127.0.0.1.xip.io:3333 # matches host
-curl -i localhost:3333 # not found case
+curl -i foo.com.127.0.0.1.xip.io:4080 
+curl -i localhost:4080
 ```
