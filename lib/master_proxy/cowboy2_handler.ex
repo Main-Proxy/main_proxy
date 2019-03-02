@@ -7,7 +7,6 @@ defmodule MasterProxy.Cowboy2Handler do
     Application.get_env(:master_proxy, :conn, Plug.Cowboy.Conn)
   end
 
-  @already_sent {:plug_conn, :sent}
   @not_found_backend %{
     plug: MasterProxy.Plug.NotFound
   }
@@ -49,7 +48,7 @@ defmodule MasterProxy.Cowboy2Handler do
     # Copied from https://github.com/phoenixframework/phoenix/blob/master/lib/phoenix/endpoint/cowboy2_handler.ex
     c = connection()
 
-    %{adapter: {c, req}} =
+    %{adapter: {^c, req}} =
       conn
       |> handler.call(opts)
       |> maybe_send(handler)

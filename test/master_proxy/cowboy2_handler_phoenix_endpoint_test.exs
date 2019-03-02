@@ -3,20 +3,14 @@ defmodule MasterProxy.Cowboy2HandlerPhoenixEndpointTest do
   use Plug.Test
   use ExUnitProperties
 
-  @connection Plug.Cowboy.Conn
-
   setup do
     {:ok, pid} = start_supervised(MasterProxy.Test.Endpoint)
-    # children = [
-    #   MasterProxy.Test.Endpoint
-    # ]
-    # opts = [strategy: :one_for_one, name: MasterProxy.Test.Supervisor]
-    # {:ok, pid} = Supervisor.start_link(children, opts)
+
     {:ok, pid: pid}
   end
 
   defp build_req(scheme, method, host, path, headers \\ %{}) do
-    req = %{
+    %{
       path: path,
       host: host,
       port: 4000,
@@ -44,13 +38,13 @@ defmodule MasterProxy.Cowboy2HandlerPhoenixEndpointTest do
 
     # these are the required params..
     req = build_req("http", "GET", conn_host, "/")
-    {:ok, req, {_handler, _opts}} = MasterProxy.Cowboy2Handler.init(req, {nil, nil})
+    {:ok, _req, {_handler, _opts}} = MasterProxy.Cowboy2Handler.init(req, {nil, nil})
 
     my_pid = self()
     stream_id = 1
 
     receive do
-      {{my_pid, stream_id}, {:response, status, headers, body}} ->
+      {{^my_pid, ^stream_id}, {:response, status, headers, body}} ->
         {status, headers, body}
         # otherwise -> IO.inspect otherwise
     after
@@ -67,35 +61,35 @@ defmodule MasterProxy.Cowboy2HandlerPhoenixEndpointTest do
 
   property "all hosts match themselves" do
     # TODO: include hyphens?
-    check all host <- host_generator do
+    check all host <- host_generator() do
       {status, _headers, _body} = matches_host?(Regex.compile!(host), host)
       assert status == "200 OK"
     end
   end
 
   property "all hosts match unspecified host" do
-    check all host <- host_generator do
+    check all host <- host_generator() do
       {status, _headers, _body} = matches_host?(nil, host)
       assert status == "200 OK"
     end
   end
 
   property "all hosts match subset" do
-    check all host <- host_generator do
+    check all host <- host_generator() do
       {status, _headers, _body} = matches_host?(Regex.compile!(String.slice(host, 1..-1)), host)
       assert status == "200 OK"
     end
   end
 
   property "all hosts match empty string" do
-    check all host <- host_generator do
+    check all host <- host_generator() do
       {status, _headers, _body} = matches_host?(Regex.compile!(""), host)
       assert status == "200 OK"
     end
   end
 
   property "no hosts match" do
-    check all host <- host_generator do
+    check all host <- host_generator() do
       {status, _headers, _body} = matches_host?(Regex.compile!("#{host}extra"), host)
       assert status == "404 Not Found"
     end

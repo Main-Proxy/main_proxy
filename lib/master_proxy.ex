@@ -1,2 +1,0 @@
-defmodule MasterProxy do
-end
