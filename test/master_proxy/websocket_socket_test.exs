@@ -1,6 +1,4 @@
 # Copied from https://raw.githubusercontent.com/phoenixframework/phoenix/v1.4/test/phoenix/integration/websocket_socket_test.exs
-Code.require_file("./support/websocket_client.exs", __DIR__)
-
 defmodule MasterProxy.Integration.WebSocketTest do
   use ExUnit.Case, async: true
   import ExUnit.CaptureLog
@@ -14,7 +12,7 @@ defmodule MasterProxy.Integration.WebSocketTest do
   @path "ws://127.0.0.1:#{@port}/ws/websocket"
 
   # TODO: how does this work? when I try to configure
-  # :master_proxy here, it is too late. maybe ExUnit is 
+  # :master_proxy here, it is too late. maybe ExUnit is
   # starting my "main" app automatically before we get here?
   Application.put_env(
     :phoenix,

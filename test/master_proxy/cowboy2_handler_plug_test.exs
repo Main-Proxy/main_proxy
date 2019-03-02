@@ -3,10 +3,8 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
   use Plug.Test
   use ExUnitProperties
 
-  @connection Plug.Cowboy.Conn
-
   defp build_req(scheme, method, host, path, headers \\ %{}) do
-    req = %{
+    %{
       path: path,
       host: host,
       port: 4000,
@@ -34,7 +32,7 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
     stream_id = 1
 
     receive do
-      {{my_pid, stream_id}, {:response, status, headers, body}} ->
+      {{^my_pid, ^stream_id}, {:response, status, headers, body}} ->
         {status, headers, body}
         # otherwise -> IO.inspect otherwise
     after
@@ -54,7 +52,7 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
     stream_id = 1
 
     receive do
-      {{my_pid, stream_id}, {:response, status, headers, body}} ->
+      {{^my_pid, ^stream_id}, {:response, status, headers, body}} ->
         {status, headers, body}
         # otherwise -> IO.inspect otherwise
     after
@@ -74,7 +72,7 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
     stream_id = 1
 
     receive do
-      {{my_pid, stream_id}, {:response, status, headers, body}} ->
+      {{^my_pid, ^stream_id}, {:response, status, headers, body}} ->
         {status, headers, body}
         # otherwise -> IO.inspect otherwise
     after
@@ -102,7 +100,7 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
     stream_id = 1
 
     receive do
-      {{my_pid, stream_id}, {:response, status, headers, body}} ->
+      {{^my_pid, ^stream_id}, {:response, status, headers, body}} ->
         {status, headers, body}
         # otherwise -> IO.inspect otherwise
     after
@@ -127,42 +125,42 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
 
   property "all hosts match themselves" do
     # TODO: include hyphens?
-    check all host <- host_generator do
+    check all host <- host_generator() do
       {status, _headers, _body} = matches_host?(Regex.compile!(host), host)
       assert status == "200 OK"
     end
   end
 
   property "all hosts match unspecified host" do
-    check all host <- host_generator do
+    check all host <- host_generator() do
       {status, _headers, _body} = matches_host?(nil, host)
       assert status == "200 OK"
     end
   end
 
   property "all hosts match subset" do
-    check all host <- host_generator do
+    check all host <- host_generator() do
       {status, _headers, _body} = matches_host?(Regex.compile!(String.slice(host, 1..-1)), host)
       assert status == "200 OK"
     end
   end
 
   property "all hosts match empty string" do
-    check all host <- host_generator do
+    check all host <- host_generator() do
       {status, _headers, _body} = matches_host?(Regex.compile!(""), host)
       assert status == "200 OK"
     end
   end
 
   property "no hosts match" do
-    check all host <- host_generator do
+    check all host <- host_generator() do
       {status, _headers, _body} = matches_host?(Regex.compile!("#{host}extra"), host)
       assert status == "404 Not Found"
     end
   end
 
   property "all paths match prefix" do
-    check all path <- path_generator do
+    check all path <- path_generator() do
       {status, _headers, _body} =
         matches_path?(Regex.compile!("^" <> String.slice(path, 0..1)), path)
 
@@ -171,7 +169,7 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
   end
 
   property "all verbs match case insensitively" do
-    check all verb <- verb_generator do
+    check all verb <- verb_generator() do
       {status, _headers, _body} =
         matches_verb?(Regex.compile!(verb, [:caseless]), String.upcase(verb))
 
@@ -180,9 +178,9 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
   end
 
   property "verb and host and path all exact match" do
-    check all host <- host_generator,
-              path <- path_generator,
-              verb <- verb_generator do
+    check all host <- host_generator(),
+              path <- path_generator(),
+              verb <- verb_generator() do
       {status, _headers, _body} =
         matches_all?(
           Regex.compile!(verb),
@@ -198,9 +196,9 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
   end
 
   property "verb and host and path with one off" do
-    check all host <- host_generator,
-              path <- path_generator,
-              verb <- verb_generator do
+    check all host <- host_generator(),
+              path <- path_generator(),
+              verb <- verb_generator() do
       {status, _headers, _body} =
         matches_all?(
           Regex.compile!(verb),
