@@ -7,6 +7,12 @@ defmodule MasterProxy.Cowboy2Handler do
     Application.get_env(:master_proxy, :conn, Plug.Cowboy.Conn)
   end
 
+  defp log_request(message) do
+    if Application.get_env(:master_proxy, :log_requests, true) do
+      Logger.debug(message)
+    end
+  end
+
   @not_found_backend %{
     plug: MasterProxy.Plug.NotFound
   }
@@ -14,7 +20,7 @@ defmodule MasterProxy.Cowboy2Handler do
   # endpoint and opts are not passed in because they
   # are dynamically chosen
   def init(req, {_endpoint, _opts}) do
-    Logger.debug("MasterProxy.Cowboy2Handler called with req: #{inspect(req)}")
+    log_request("MasterProxy.Cowboy2Handler called with req: #{inspect(req)}")
 
     conn = connection().conn(req)
 
@@ -22,7 +28,7 @@ defmodule MasterProxy.Cowboy2Handler do
     backends = Application.get_env(:master_proxy, :backends)
 
     backend = choose_backend(conn, backends)
-    Logger.debug("Backend chosen: #{inspect(backend)}")
+    log_request("Backend chosen: #{inspect(backend)}")
 
     dispatch(backend, req)
   end
