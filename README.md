@@ -8,7 +8,7 @@ This application is based on the [master_proxy](https://github.com/wojtekmach/ac
 
 ## Installation
 
-Add `master_proxy` to your list of dependencies in `mix.exs`:
+Add `master_proxy` to your list of dependencies in `mix.exs`. Note: if you are running an umbrella app, adding master proxy as a dependency at the root mix.exs won't work. You want to either add it to one of your inner apps or create a new inner app just for the proxy.
 
 ```elixir
 def deps do
