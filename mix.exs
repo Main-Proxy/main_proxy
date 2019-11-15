@@ -41,14 +41,14 @@ defmodule MasterProxy.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:plug_cowboy, "~> 2.0.0"},
-      {:phoenix, "~> 1.4.0"},
+      {:plug_cowboy, "~> 2.0"},
+      {:phoenix, "~> 1.4"},
 
       # for hex.pm
       {:ex_doc, ">= 0.0.0", only: :dev},
 
       # test
-      {:stream_data, "~> 0.4.2", only: :test},
+      {:stream_data, "~> 0.4", only: :test},
       {:jason, "~> 1.0", only: :test},
       {:websocket_client, git: "https://github.com/jeremyong/websocket_client.git", only: :test}
     ]
