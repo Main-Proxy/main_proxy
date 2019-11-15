@@ -1,28 +1,30 @@
 # MasterProxy
 
-Proxies requests to Web apps that are part of the platform. Useful for Gigalixir or Heroku deployment when just one web port is exposed.
+Proxies requests to Web apps that are part of the platform. Useful for Gigalixir, Render or Heroku deployment when only one web port is exposed.
 
-Works with phoenix endpoints, plugs, and websockets.
+Works with Phoenix Endpoints, Plugs and WebSockets.
 
-This application is based on the [master_proxy](https://github.com/wojtekmach/acme_bank/tree/master/apps/master_proxy) application inside the [acme_bank](https://github.com/wojtekmach/acme_bank) project, which was based on a gist shared by @Gazler.
+This application is based on the [master_proxy](https://github.com/wojtekmach/acme_bank/tree/master/apps/master_proxy) application inside the [acme_bank](https://github.com/wojtekmach/acme_bank) project, which was based on a gist shared by [Gazler](https://github.com/Gazler).
 
 ## Installation
 
-Add `master_proxy` to your list of dependencies in `mix.exs`. Note: if you are running an umbrella app, adding master proxy as a dependency at the root mix.exs won't work. You want to either add it to one of your inner apps or create a new inner app just for the proxy.
+Add `master_proxy` to your list of dependencies in `mix.exs`.
+
+Note: if you are running an umbrella project, adding MasterProxy as a dependency at the root `mix.exs` won't work. Instead, either add it to one of your child apps or create a new child app solely for the proxy.
 
 ```elixir
 def deps do
   [
-    {:master_proxy, "~> 0.1.0"}
+    {:master_proxy, "~> 0.1"}
   ]
 end
 ```
 
-Configure how master_proxy should route requests by adding something like this in `config.exs`.
+Configure how MasterProxy should route requests by adding something like this in `config.exs`.
 
 ```elixir
 config :master_proxy, 
-  # any cowboy options are allowed 
+  # any Cowboy options are allowed
   http: [:inet6, port: 4080],
   https: [:inet6, port: 4443],
   backends: [
@@ -39,12 +41,24 @@ config :master_proxy,
   ]
 ```
 
-## How does this work?
+For further configuration examples, see below.
 
-1. We start a cowboy server with a single dispatch handler: MasterProxy.Cowboy2Handler
-2. The handler looks at the verb, host, and path and compares it to the configuration you supplied to decide where to route the request
-  a. If the backend that matched is a `phoenix_endpoint` it delegates to the Phoenix.Endpoint.Cowboy2Handler with your app's `Endpoint`
-  b. If the backend that matched is a `plug`, then it just calls the plug as normal
+To avoid the platform routing requests directly to your Web apps' Endpoints, and thus bypassing the Endpoint on which MasterProxy is running, you can configure your other Web apps' Endpoints to not start a server in your production config.
+
+```elixir
+# An Endpoint on which MasterProxy is not running
+config :my_app_web, MyAppWeb.Endpoint,
+  # ...
+  server: false
+```
+
+## How does proxying work?
+
+1. We start a Cowboy server with a single dispatch handler: `MasterProxy.Cowboy2Handler`.
+2. The handler checks the verb, host and path of the request, and compares them to the supplied configuration to determine where to route the request.
+	1. If the backend that matched is a `phoenix_endpoint`, MasterProxy delegates to the Phoenix.Endpoint.Cowboy2Handler with your app's Endpoint.
+	2. If the backend that matched is a `plug`, MasterProxy simply calls the plug as normal.
+	3. If no backend is matched, a text response with a status code of 404 is returned.
 
 ## Development
 
@@ -52,4 +66,31 @@ config :master_proxy,
 mix run --no-halt
 curl -i foo.com.127.0.0.1.xip.io:4080 
 curl -i localhost:4080
+```
+
+## Configuration examples
+
+### Route requests to apps based on hostname
+
+```elixir
+config :master_proxy,
+  http: [port: 80],
+  backends: [
+    %{
+      host: ~r{^app-name\.gigalixirapp\.com$},
+      phoenix_endpoint: MyAppWeb.Endpoint
+    },
+    %{
+      host: ~r{^www\.example\.com$},
+      phoenix_endpoint: MyAppWeb.Endpoint
+    },
+    %{
+      host: ~r{^api\.example\.com$},
+      phoenix_endpoint: MyAppApiWeb.Endpoint
+    },
+    %{
+      host: ~r{^members\.example\.com$},
+      phoenix_endpoint: MyAppMembersWeb.Endpoint
+    }
+  ]
 ```
