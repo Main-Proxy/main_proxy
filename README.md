@@ -6,6 +6,8 @@ Works with Phoenix Endpoints, Plugs and WebSockets.
 
 This application is based on the [master_proxy](https://github.com/wojtekmach/acme_bank/tree/master/apps/master_proxy) application inside the [acme_bank](https://github.com/wojtekmach/acme_bank) project, which was based on a gist shared by [Gazler](https://github.com/Gazler).
 
+This particular fork reimagines the OTP app version into a supervisor pattern that allows runtime config to be passed in and overwrite the compile-time config, allowing for greater flexibility from deployment to deployment.
+
 ## Installation
 
 Add `master_proxy` to your list of dependencies in `mix.exs`.
@@ -40,6 +42,22 @@ config :master_proxy,
     }
   ]
 ```
+
+And then run as a child of your application, overriding any config you need for the environment:
+```elixir
+# with Supervisor.Spec imported
+
+children = [
+  supervisor(MasterProxy, [[http: port: 8040]]),
+  supervisor(MyApp.Endpoint1, [])
+  supervisor(MyApp.Endpoint2, [])
+]
+
+opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+Supervisor.start_link(children, opts)
+```
+
+(MasterProxy does not need to be a sibling of the `Endpoint`s you wish to delegate to, you could have a different app in your umbrella which depends on those apps that handles the `MasterProxy` process and providing runtime config)
 
 For further configuration examples, see below.
 
