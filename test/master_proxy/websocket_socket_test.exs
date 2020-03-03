@@ -70,11 +70,12 @@ defmodule MasterProxy.Integration.WebSocketTest do
   end
 
   setup_all do
-    # capture_log(fn -> MasterProxy.Application.start(nil, nil) end)
-    # MasterProxy.Application.start(nil, nil)
+    # capture_log(fn -> MasterProxy.start(nil, nil) end)
+    # MasterProxy.start(nil, nil)
     # matches everything and proxies over to the Endpoint here
     backends = [%{phoenix_endpoint: Endpoint}]
     Application.put_env(:master_proxy, :backends, backends)
+    {:ok, _pid} = MasterProxy.start_link([])
     # This needs to start so Phoenix.Config is initialized
     # among other things
     capture_log(fn -> Endpoint.start_link() end)
