@@ -37,6 +37,7 @@ defmodule MasterProxy.Application do
   defp port_to_integer(:undefined),
     do: raise("port is missing from the master_proxy configuration")
 
+  defp port_to_integer({:system, var_name}), do: port_to_integer(System.get_env(var_name))
   defp port_to_integer(port) when is_binary(port), do: String.to_integer(port)
   defp port_to_integer(port) when is_integer(port), do: port
 end

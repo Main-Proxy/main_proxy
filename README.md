@@ -74,7 +74,7 @@ curl -i localhost:4080
 
 ```elixir
 config :master_proxy,
-  http: [port: 80],
+  http: [port: {:system, "PORT"}], # reads $PORT env variable at runtime.
   backends: [
     %{
       host: ~r{^app-name\.gigalixirapp\.com$},
