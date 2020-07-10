@@ -4,7 +4,7 @@ defmodule MasterProxy.MixProject do
   def project do
     [
       app: :master_proxy,
-      version: "0.1.3",
+      version: "0.1.4",
       description:
         "Proxies requests to multiple apps. Useful for Gigalixir or Heroku deployment when just one web port is exposed. Works with phoenix endpoints, plugs, and websockets.",
       package: package(),
@@ -41,8 +41,8 @@ defmodule MasterProxy.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:plug_cowboy, "~> 2.0"},
-      {:phoenix, "~> 1.4"},
+      {:plug_cowboy, "~> 2.1"},
+      {:phoenix, "~> 1.5"},
 
       # for hex.pm
       {:ex_doc, ">= 0.0.0", only: :dev},
