@@ -41,7 +41,7 @@ defmodule MasterProxy.Cowboy2Handler do
 
   defp dispatch(%{phoenix_endpoint: endpoint}, req) do
     # we don't pass in any opts here because that is how phoenix does it
-    # see https://github.com/phoenixframework/phoenix/blob/master/lib/phoenix/endpoint/cowboy2_adapter.ex#L42
+    # see https://github.com/phoenixframework/phoenix/blob/v1.5.7/lib/phoenix/endpoint/cowboy2_adapter.ex#L41
     Phoenix.Endpoint.Cowboy2Handler.init(req, {endpoint, endpoint.init([])})
   end
 
