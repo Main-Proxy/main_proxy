@@ -19,21 +19,33 @@ defmodule MasterProxy.Cowboy2Handler do
 
   # endpoint and opts are not passed in because they
   # are dynamically chosen
-  def init(req, {_endpoint, _opts}) do
+  def init(req, {_endpoint, opts}) do
     log_request("MasterProxy.Cowboy2Handler called with req: #{inspect(req)}")
 
     conn = connection().conn(req)
 
-    # extract this and pass in as a param somehow
-    backends = Application.get_env(:master_proxy, :backends)
-
-    backend = choose_backend(conn, backends)
+    backend = choose_backend(conn, opts)
     log_request("Backend chosen: #{inspect(backend)}")
 
     dispatch(backend, req)
   end
 
-  defp choose_backend(conn, backends) do
+  defp choose_backend(conn, opts) do
+    callback_module = Keyword.get(opts, :callback_module)
+    backends = Keyword.fetch!(opts, :backends)
+
+    if callback_module && function_exported?(callback_module, :choose_backend, 1) do
+      case callback_module.choose_backend(conn) do
+        :fallback -> choose_backend_from_config(conn, backends)
+        {:phoenix_endpoint, endpoint} -> %{phoenix_endpoint: endpoint}
+        {:plug, plug} -> %{plug: plug}
+      end
+    else
+      choose_backend_from_config(conn, backends)
+    end
+  end
+
+  defp choose_backend_from_config(conn, backends) do
     Enum.find(backends, @not_found_backend, fn backend ->
       backend_matches?(conn, backend)
     end)
@@ -72,12 +84,20 @@ defmodule MasterProxy.Cowboy2Handler do
   end
 
   defp backend_matches?(conn, backend) do
+    domain = Map.get(backend, :domain)
     verb = Map.get(backend, :verb) || ~r/.*/
     host = Map.get(backend, :host) || ~r/.*/
     path = Map.get(backend, :path) || ~r/.*/
 
-    Regex.match?(host, conn.host) && Regex.match?(path, conn.request_path) &&
-      Regex.match?(verb, conn.method)
+    verb_host_path_match =
+      Regex.match?(host, conn.host) && Regex.match?(path, conn.request_path) &&
+        Regex.match?(verb, conn.method)
+
+    if domain do
+      domain == conn.host && verb_host_path_match
+    else
+      verb_host_path_match
+    end
   end
 
   ## Websocket callbacks
