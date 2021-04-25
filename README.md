@@ -33,6 +33,17 @@ config :master_proxy,
       phoenix_endpoint: MyAppWeb.Endpoint
     },
     %{
+      path: ~r{^/my-app-web},
+      cowboy_middleware: fn
+        req ->
+          # configure MyAppWeb.Endpoint to have url: [path: "/my-app-web"]
+          # for working URL generation with no additional changes to your app
+          path = String.replace(req[:path], "/my-app-web", "")
+          Map.put(req, :path, path)
+	  end,
+	  phoenix_endpoint: MyAppWeb.Endpoint
+    },
+    %{
       verb: ~r/get/i,
       path: ~r{^/master-proxy-plug-test$},
       plug: MasterProxy.Plug.Test,

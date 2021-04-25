@@ -30,6 +30,8 @@ defmodule MasterProxy.Cowboy2Handler do
     backend = choose_backend(conn, backends)
     log_request("Backend chosen: #{inspect(backend)}")
 
+    req = execute_cowboy_middleware(req, backend)
+
     dispatch(backend, req)
   end
 
@@ -38,6 +40,17 @@ defmodule MasterProxy.Cowboy2Handler do
       backend_matches?(conn, backend)
     end)
   end
+
+  defp execute_cowboy_middleware(req, %{cowboy_middleware: cowboy_middlewares}) when is_list(cowboy_middlewares) do
+    cowboy_middlewares
+    |> Enum.reduce(req, fn cowboy_middleware, req -> cowboy_middleware.(req) end)
+  end
+
+  defp execute_cowboy_middleware(req, %{cowboy_middleware: cowboy_middleware}) when is_function(cowboy_middleware) do
+    cowboy_middleware.(req)
+  end
+
+  defp execute_cowboy_middleware(req, _), do: req
 
   defp dispatch(%{phoenix_endpoint: endpoint}, req) do
     # we don't pass in any opts here because that is how phoenix does it
