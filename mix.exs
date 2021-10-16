@@ -41,7 +41,7 @@ defmodule MasterProxy.MixProject do
   defp deps do
     [
       {:plug_cowboy, "~> 2.0"},
-      {:phoenix, "~> 1.4"},
+      {:phoenix, "~> 1.6"},
 
       # for hex.pm
       {:ex_doc, ">= 0.0.0", only: :dev},
