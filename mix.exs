@@ -8,7 +8,7 @@ defmodule MasterProxy.MixProject do
       description:
         "Proxies requests to multiple apps. Useful for Gigalixir or Heroku deployment when just one web port is exposed. Works with phoenix endpoints, plugs, and websockets.",
       package: package(),
-      elixir: "~> 1.7",
+      elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps()

@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :master_proxy,
   conn: Plug.Cowboy.Conn
