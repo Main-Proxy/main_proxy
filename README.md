@@ -1,5 +1,7 @@
 # MasterProxy
 
+<!-- MDOC !-->
+
 Route requests to other Phoenix Endpoints or Plugs with WebSocket support.
 
 > This library is useful for Gigalixir, Render, Heroku or other deployments where only one web port is exposed.
@@ -43,7 +45,7 @@ config :master_proxy,
   ]
 ```
 
-See [Configuration Examples](#configuration-examples) for more.
+See [Configuration Examples](#module-configuration-examples) for more.
 
 To avoid the platform routing requests directly to your Web apps' Endpoints, and thus bypassing the Endpoint on which MasterProxy is running, you can configure your other Web apps' Endpoints to not start a server in your production config.
 
@@ -67,6 +69,7 @@ config :my_app_web, MyAppWeb.Endpoint,
    - `:opts` - only for `:plug`
  - `:log_requests` - `true` by default. Log the requests or not.
 
+<a id="module-configuration-examples"></a>
 ## Configuration Examples
 
 ### Route requests to apps based on hostname
@@ -94,18 +97,7 @@ config :master_proxy,
   ]
 ```
 
-### Route requests for SiteEncrypt
-
-Example of routing requests for [`:site_encrypt`](https://github.com/sasa1977/site_encrypt)
-
-config :master_proxy,
-  http: [:inet6, port: 80],
-  https: [:inet6, port: 443],
-  backends: [
-    %{path: ~r/^\/.well-known\/acme-challenge\//, phoenix_endpoint: MySharedAppWeb.Endpoint},
-    # By not specifying any of the other options, this Endpoint will handle all other requests
-    %{phoenix_endpoint: MyCoolAppWeb.Endpoint},
-  ]
+<!-- MDOC !-->
 
 ## How does MasterProxy work?
 
