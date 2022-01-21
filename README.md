@@ -97,19 +97,6 @@ config :master_proxy,
   ]
 ```
 
-### Route requests for SiteEncrypt
-
-Example of routing requests for [`:site_encrypt`](https://github.com/sasa1977/site_encrypt)
-
-config :master_proxy,
-  http: [:inet6, port: 80],
-  https: [:inet6, port: 443],
-  backends: [
-    %{path: ~r/^\/.well-known\/acme-challenge\//, phoenix_endpoint: MySharedAppWeb.Endpoint},
-    # By not specifying any of the other options, this Endpoint will handle all other requests
-    %{phoenix_endpoint: MyCoolAppWeb.Endpoint},
-  ]
-
 <!-- MDOC !-->
 
 ## How does MasterProxy work?
