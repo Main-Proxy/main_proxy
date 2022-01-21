@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :master_proxy,
   http: [:inet6, port: System.get_env("PORT") || 4000],

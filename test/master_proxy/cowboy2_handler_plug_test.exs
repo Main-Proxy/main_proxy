@@ -20,6 +20,26 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
     }
   end
 
+  defp matches_domain?(backend_domain, conn_domain) do
+    backends = [%{domain: backend_domain, plug: MasterProxy.Plug.Test}]
+    Application.put_env(:master_proxy, :backends, backends)
+
+    # these are the required params..
+    req = build_req("http", "GET", conn_domain, "/")
+    {:ok, _req, {_handler, _opts}} = MasterProxy.Cowboy2Handler.init(req, {nil, nil})
+
+    my_pid = self()
+    stream_id = 1
+
+    receive do
+      {{^my_pid, ^stream_id}, {:response, status, headers, body}} ->
+        {status, headers, body}
+        # otherwise -> IO.inspect otherwise
+    after
+      0 -> flunk("timed out")
+    end
+  end
+
   defp matches_host?(backend_host, conn_host) do
     backends = [%{host: backend_host, plug: MasterProxy.Plug.Test}]
     Application.put_env(:master_proxy, :backends, backends)
@@ -84,6 +104,7 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
     backends = [
       %{
         verb: backend_verb,
+        domain: conn_host,
         host: backend_host,
         path: backend_path,
         plug: MasterProxy.Plug.Test
@@ -121,6 +142,13 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
 
   defp verb_generator do
     member_of(["get", "post", "put", "head", "delete", "patch"])
+  end
+
+  property "all domains match themselves" do
+    check all host <- host_generator() do
+      {status, _headers, _body} = matches_domain?(host, host)
+      assert status == "200 OK"
+    end
   end
 
   property "all hosts match themselves" do
@@ -177,7 +205,7 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
     end
   end
 
-  property "verb and host and path all exact match" do
+  property "all exact match" do
     check all host <- host_generator(),
               path <- path_generator(),
               verb <- verb_generator() do

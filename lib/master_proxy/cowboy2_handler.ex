@@ -72,12 +72,17 @@ defmodule MasterProxy.Cowboy2Handler do
   end
 
   defp backend_matches?(conn, backend) do
-    verb = Map.get(backend, :verb) || ~r/.*/
-    host = Map.get(backend, :host) || ~r/.*/
-    path = Map.get(backend, :path) || ~r/.*/
+    verb = Map.get(backend, :verb)
+    domain = Map.get(backend, :domain)
+    host = Map.get(backend, :host)
+    path = Map.get(backend, :path)
 
-    Regex.match?(host, conn.host) && Regex.match?(path, conn.request_path) &&
-      Regex.match?(verb, conn.method)
+    verb_match = if verb, do: Regex.match?(verb, conn.method), else: true
+    domain_match = if domain, do: conn.host == domain, else: true
+    host_match = if host, do: Regex.match?(host, conn.host), else: true
+    path_match = if path, do: Regex.match?(path, conn.request_path), else: true
+
+    verb_match && domain_match && host_match && path_match
   end
 
   ## Websocket callbacks
