@@ -20,7 +20,10 @@ def deps do
 end
 ```
 
-Configure rules for routing requests by adding something like this in your configuration (i.e. `config/config.exs`).
+Configure rules for routing requests by adding configuration (i.e.
+`config/config.exs`). Backend configuration is optional and can be replaced by
+the `merge_config/2` callback of your proxy module (more info below) if you need
+to generate configuration at runtime.
 
 ```elixir
 config :master_proxy, 
@@ -46,6 +49,23 @@ config :master_proxy,
 ```
 
 See [Configuration Examples](#module-configuration-examples) for more.
+
+Then create the proxy module and add it to your application startup (often in `MyApp.Application`):
+
+module:
+``` elixir
+defmodule MyApp.Proxy do
+  use MasterProxy.Proxy
+end
+```
+
+Proxies must be explicitly started as part of your application supervision tree.
+Proxies can be added to the supervision tree as follows (usually in `MyApp.Application`):
+
+    children = [
+      # ... other children
+      MyApp.Proxy,
+    ]
 
 To avoid the platform routing requests directly to your Web apps' Endpoints, and thus bypassing the Endpoint on which MasterProxy is running, you can configure your other Web apps' Endpoints to not start a server in your production config.
 
