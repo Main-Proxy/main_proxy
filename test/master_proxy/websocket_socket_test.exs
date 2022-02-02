@@ -8,7 +8,7 @@ defmodule MasterProxy.Integration.WebSocketTest do
   alias __MODULE__.Endpoint
 
   @moduletag :capture_log
-  @port 5907
+  @port Application.fetch_env!(:master_proxy, :http)[:port]
   @path "ws://127.0.0.1:#{@port}/ws/websocket"
 
   # TODO: how does this work? when I try to configure
@@ -22,6 +22,10 @@ defmodule MasterProxy.Integration.WebSocketTest do
     debug_errors: false,
     server: true
   )
+
+  defmodule MyApp.Proxy do
+    use MasterProxy.Proxy
+  end
 
   defmodule UserSocket do
     @behaviour Phoenix.Socket.Transport
@@ -78,6 +82,7 @@ defmodule MasterProxy.Integration.WebSocketTest do
     # This needs to start so Phoenix.Config is initialized
     # among other things
     capture_log(fn -> Endpoint.start_link() end)
+    start_supervised!(MyApp.Proxy)
     :ok
   end
 

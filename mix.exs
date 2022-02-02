@@ -46,7 +46,7 @@ defmodule MasterProxy.MixProject do
       {:ex_doc, ">= 0.0.0", only: :dev},
 
       # test
-      {:stream_data, "~> 0.4", only: :test},
+      {:stream_data, "~> 0.4", only: [:dev, :test]},
       {:jason, "~> 1.0", only: :test},
       {:websocket_client, git: "https://github.com/jeremyong/websocket_client.git", only: :test}
     ]
