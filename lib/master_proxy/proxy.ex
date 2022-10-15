@@ -27,15 +27,38 @@ defmodule MasterProxy.Proxy do
   @type scheme :: :http | :https
 
   @doc """
+  Merge cowboy config
+
   Overriding this callback allows the configuration from the application
   environment to be modified at runtime.
-
-  Receives configuration from application environment. By default the
-  application environment configuration is used.
   """
   @callback merge_config(scheme(), keyword()) :: keyword()
 
-  @optional_callbacks merge_config: 2
+  @doc """
+  Specify the backends to pass requests to at startup time. (Optional)
+
+  Overriding this callback allows for setting the backends to be matched at
+  runtime when the proxy is starting up.
+
+  Example:
+
+      @impl MasterProxy.Proxy
+      def backends do
+        [
+          %{
+            domain: "https://myapp1.com",
+            phoenix_endpoint: MyApp1Web.Endpoint
+          },
+          %{
+            domain: "https://myapp2.com",
+            phoenix_endpoint: MyApp2Web.Endpoint
+          }
+        ]
+      end
+  """
+  @callback backends :: list(map())
+
+  @optional_callbacks merge_config: 2, backends: 0
 
   require Logger
 
@@ -50,8 +73,8 @@ defmodule MasterProxy.Proxy do
       end
 
       @impl Supervisor
-      def init(callback_module) do
-        backends = Application.fetch_env!(:master_proxy, :backends)
+      def init(_opts) do
+        backends = __MODULE__.backends()
 
         children =
           if MasterProxy.Proxy.server?() do
@@ -64,8 +87,23 @@ defmodule MasterProxy.Proxy do
       end
 
       def merge_config(_scheme, opts), do: opts
+      def backends, do: MasterProxy.Proxy.default_fetch_backends()
 
-      defoverridable merge_config: 2
+      defoverridable merge_config: 2, backends: 0
+    end
+  end
+
+  @doc false
+  def default_fetch_backends do
+    case Application.fetch_env(:master_proxy, :backends) do
+      {:ok, backends} ->
+        backends
+
+      :error ->
+        Logger.warn(
+          "No backends specified. Either configure :master_proxy, :backends or define a " <>
+            "`backend/0` function in your `Proxy` module."
+        )
     end
   end
 

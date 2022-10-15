@@ -31,6 +31,14 @@ children = [
 ]
 ```
 
+You can also move your `backends` configuration into your `MyApp.Proxy` module
+instead of inside application configuration. This change is in line with the
+["Avoid application
+configuration"](https://hexdocs.pm/elixir/1.13/library-guidelines.html#avoid-application-configuration)
+library guideline.
+
+See `MasterProxy.Proxy` docs for details about the new module.
+
 ## 0.1.4 - 2022-01-21
 ### Added
 - Add server and domain options [#16](https://github.com/jesseshieh/master_proxy/pull/16)

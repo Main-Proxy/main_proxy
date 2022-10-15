@@ -19,13 +19,12 @@ defmodule MasterProxy.Cowboy2Handler do
 
   # endpoint and opts are not passed in because they
   # are dynamically chosen
-  def init(req, {_endpoint, _opts}) do
+  def init(req, {_endpoint, opts}) do
     log_request("MasterProxy.Cowboy2Handler called with req: #{inspect(req)}")
 
     conn = connection().conn(req)
 
-    # extract this and pass in as a param somehow
-    backends = Application.get_env(:master_proxy, :backends)
+    backends = Keyword.get(opts, :backends)
 
     backend = choose_backend(conn, backends)
     log_request("Backend chosen: #{inspect(backend)}")
