@@ -26,8 +26,7 @@ defmodule MainProxy.Cowboy2HandlerPlugTest do
     # these are the required params..
     req = build_req("http", "GET", conn_domain, "/")
 
-    {:ok, _req, {_handler, _opts}} =
-      MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+    {:ok, _req, {_handler, _opts}} = MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1
@@ -47,8 +46,7 @@ defmodule MainProxy.Cowboy2HandlerPlugTest do
     # these are the required params..
     req = build_req("http", "GET", conn_host, "/")
 
-    {:ok, _req, {_handler, _opts}} =
-      MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+    {:ok, _req, {_handler, _opts}} = MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1
@@ -68,8 +66,7 @@ defmodule MainProxy.Cowboy2HandlerPlugTest do
     # these are the required params..
     req = build_req("http", "GET", "localhost", conn_path)
 
-    {:ok, _req, {_handler, _opts}} =
-      MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+    {:ok, _req, {_handler, _opts}} = MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1
@@ -89,8 +86,7 @@ defmodule MainProxy.Cowboy2HandlerPlugTest do
     # these are the required params..
     req = build_req("http", conn_verb, "localhost", "/")
 
-    {:ok, _req, {_handler, _opts}} =
-      MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+    {:ok, _req, {_handler, _opts}} = MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1
@@ -118,8 +114,7 @@ defmodule MainProxy.Cowboy2HandlerPlugTest do
     # these are the required params..
     req = build_req("http", conn_verb, conn_host, conn_path)
 
-    {:ok, _req, {_handler, _opts}} =
-      MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+    {:ok, _req, {_handler, _opts}} = MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1
