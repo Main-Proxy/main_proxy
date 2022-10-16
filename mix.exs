@@ -11,7 +11,9 @@ defmodule MainProxy.MixProject do
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      source_url: "https://github.com/Main-Proxy/main_proxy",
+      homepage_url: "https://github.com/Main-Proxy/main_proxy"
     ]
   end
 
@@ -29,13 +31,10 @@ defmodule MainProxy.MixProject do
   defp package() do
     [
       name: "main_proxy",
-      organization: "main_proxy",
       files: ["lib", "mix.exs", "README.md", "LICENSE.md"],
       maintainers: ["Jason Axelson", "Jesse Shieh"],
       licenses: ["MIT"],
-      links: %{GitHub: "https://github.com/Main-Proxy/main_proxy"},
-      source_url: "https://github.com/Main-Proxy/main_proxy",
-      homepage_url: "https://github.com/Main-Proxy/main_proxy"
+      links: %{GitHub: "https://github.com/Main-Proxy/main_proxy"}
     ]
   end
 
