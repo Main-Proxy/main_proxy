@@ -22,8 +22,7 @@ defmodule MasterProxy.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
-      mod: {MasterProxy.Application, []}
+      extra_applications: [:logger]
     ]
   end
 
@@ -47,9 +46,8 @@ defmodule MasterProxy.MixProject do
       {:ex_doc, ">= 0.0.0", only: :dev},
 
       # test
-      {:stream_data, "~> 0.4", only: :test},
-      {:jason, "~> 1.0", only: :test},
-      {:websocket_client, git: "https://github.com/jeremyong/websocket_client.git", only: :test}
+      {:stream_data, "~> 0.4", only: [:dev, :test]},
+      {:jason, "~> 1.0", only: :test}
     ]
   end
 end

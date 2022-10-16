@@ -22,11 +22,12 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
 
   defp matches_domain?(backend_domain, conn_domain) do
     backends = [%{domain: backend_domain, plug: MasterProxy.Plug.Test}]
-    Application.put_env(:master_proxy, :backends, backends)
 
     # these are the required params..
     req = build_req("http", "GET", conn_domain, "/")
-    {:ok, _req, {_handler, _opts}} = MasterProxy.Cowboy2Handler.init(req, {nil, nil})
+
+    {:ok, _req, {_handler, _opts}} =
+      MasterProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1
@@ -42,11 +43,12 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
 
   defp matches_host?(backend_host, conn_host) do
     backends = [%{host: backend_host, plug: MasterProxy.Plug.Test}]
-    Application.put_env(:master_proxy, :backends, backends)
 
     # these are the required params..
     req = build_req("http", "GET", conn_host, "/")
-    {:ok, _req, {_handler, _opts}} = MasterProxy.Cowboy2Handler.init(req, {nil, nil})
+
+    {:ok, _req, {_handler, _opts}} =
+      MasterProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1
@@ -62,11 +64,12 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
 
   defp matches_path?(backend_path, conn_path) do
     backends = [%{path: backend_path, plug: MasterProxy.Plug.Test}]
-    Application.put_env(:master_proxy, :backends, backends)
 
     # these are the required params..
     req = build_req("http", "GET", "localhost", conn_path)
-    {:ok, _req, {_handler, _opts}} = MasterProxy.Cowboy2Handler.init(req, {nil, nil})
+
+    {:ok, _req, {_handler, _opts}} =
+      MasterProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1
@@ -82,11 +85,12 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
 
   defp matches_verb?(backend_verb, conn_verb) do
     backends = [%{verb: backend_verb, plug: MasterProxy.Plug.Test}]
-    Application.put_env(:master_proxy, :backends, backends)
 
     # these are the required params..
     req = build_req("http", conn_verb, "localhost", "/")
-    {:ok, _req, {_handler, _opts}} = MasterProxy.Cowboy2Handler.init(req, {nil, nil})
+
+    {:ok, _req, {_handler, _opts}} =
+      MasterProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1
@@ -111,11 +115,11 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
       }
     ]
 
-    Application.put_env(:master_proxy, :backends, backends)
-
     # these are the required params..
     req = build_req("http", conn_verb, conn_host, conn_path)
-    {:ok, _req, {_handler, _opts}} = MasterProxy.Cowboy2Handler.init(req, {nil, nil})
+
+    {:ok, _req, {_handler, _opts}} =
+      MasterProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1

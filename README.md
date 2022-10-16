@@ -20,32 +20,60 @@ def deps do
 end
 ```
 
-Configure rules for routing requests by adding something like this in your configuration (i.e. `config/config.exs`).
+Configure rules for routing requests by adding configuration (i.e.
+`config/config.exs`). Backend configuration is optional and can be replaced by
+the `merge_config/2` callback of your proxy module (more info below) if you need
+to generate configuration at runtime.
 
 ```elixir
-config :master_proxy, 
+config :master_proxy,
   # any Cowboy options are allowed
   http: [:inet6, port: 4080],
-  https: [:inet6, port: 4443],
-  backends: [
-    %{
-      domain: "my-cool-app.com",
-      phoenix_endpoint: MyCoolAppWeb.Endpoint
-    },
-    %{
-      domain: "members.my-cool-app.com",
-      phoenix_endpoint: MyAppMembersWeb.Endpoint
-    },
-    %{
-      verb: ~r/get/i,
-      path: ~r{^/master-proxy-plug-test$},
-      plug: MasterProxy.Plug.Test,
-      opts: [1, 2, 3]
-    }
-  ]
+  https: [:inet6, port: 4443]
 ```
 
+Note: backends can also be configured via configuration, but configuring the
+backends via your proxy module (see the `use MasterProxy.Proxy` example below)
+is recommended.
+
 See [Configuration Examples](#module-configuration-examples) for more.
+
+Then create the proxy module and add it to your application startup (often in `MyApp.Application`):
+
+module:
+``` elixir
+defmodule MyApp.Proxy do
+  use MasterProxy.Proxy
+
+  @impl MasterProxy.Proxy
+  def backends do
+    [
+      %{
+        domain: "my-cool-app.com",
+        phoenix_endpoint: MyCoolAppWeb.Endpoint
+      },
+      %{
+        domain: "members.my-cool-app.com",
+        phoenix_endpoint: MyAppMembersWeb.Endpoint
+      },
+      %{
+        verb: ~r/get/i,
+        path: ~r{^/master-proxy-plug-test$},
+        plug: MasterProxy.Plug.Test,
+        opts: [1, 2, 3]
+      }
+    ]
+  end
+end
+```
+
+Proxies must be explicitly started as part of your application supervision tree.
+Proxies can be added to the supervision tree as follows (usually in `MyApp.Application`):
+
+    children = [
+      # ... other children
+      MyApp.Proxy,
+    ]
 
 To avoid the platform routing requests directly to your Web apps' Endpoints, and thus bypassing the Endpoint on which MasterProxy is running, you can configure your other Web apps' Endpoints to not start a server in your production config.
 
@@ -62,6 +90,7 @@ config :my_app_web, MyAppWeb.Endpoint,
  - `:https` - the configuration for the HTTPS server. It accepts all options as defined by [Plug.Cowboy](https://hexdocs.pm/plug_cowboy/).
  - `:server` - `true` by default. If you are running application with `mix phx.server`, this option is ignored, and the server will always be started.
  - `:backends` - the rule for routing requests. See [Configuration Examples](#configuration-examples) for more.
+   - `:domain`
    - `:verb`
    - `:host`
    - `:path`
@@ -75,6 +104,36 @@ config :my_app_web, MyAppWeb.Endpoint,
 ### Route requests to apps based on hostname
 
 ```elixir
+defmodule MyApp.Proxy do
+  use MasterProxy.Proxy
+
+  @impl MasterProxy.Proxy
+  def backends do
+    [
+      %{
+        host: ~r{^app-name\.gigalixirapp\.com$},
+        phoenix_endpoint: MyAppWeb.Endpoint
+      },
+      %{
+        host: ~r{^www\.example\.com$},
+        phoenix_endpoint: MyAppWeb.Endpoint
+      },
+      %{
+        host: ~r{^api\.example\.com$},
+        phoenix_endpoint: MyAppApiWeb.Endpoint
+      },
+      %{
+        host: ~r{^members\.example\.com$},
+        phoenix_endpoint: MyAppMembersWeb.Endpoint
+      }
+    ]
+  end
+end
+```
+
+### Configuration via application config
+
+``` elixir
 config :master_proxy,
   http: [port: 80],
   backends: [
@@ -85,14 +144,6 @@ config :master_proxy,
     %{
       host: ~r{^www\.example\.com$},
       phoenix_endpoint: MyAppWeb.Endpoint
-    },
-    %{
-      host: ~r{^api\.example\.com$},
-      phoenix_endpoint: MyAppApiWeb.Endpoint
-    },
-    %{
-      host: ~r{^members\.example\.com$},
-      phoenix_endpoint: MyAppMembersWeb.Endpoint
     }
   ]
 ```

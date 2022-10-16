@@ -34,11 +34,12 @@ defmodule MasterProxy.Cowboy2HandlerPhoenixEndpointTest do
     # |> MasterProxy.Plug.call(MasterProxy.Plug.init(opts))
 
     backends = [%{host: backend_host, phoenix_endpoint: MasterProxy.Test.Endpoint}]
-    Application.put_env(:master_proxy, :backends, backends)
 
     # these are the required params..
     req = build_req("http", "GET", conn_host, "/")
-    {:ok, _req, {_handler, _opts}} = MasterProxy.Cowboy2Handler.init(req, {nil, nil})
+
+    {:ok, _req, {_handler, _opts}} =
+      MasterProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1
