@@ -4,7 +4,7 @@ defmodule MainProxy.MixProject do
   def project do
     [
       app: :main_proxy,
-      version: "0.1.4",
+      version: "0.2.0",
       description:
         "Proxies requests to multiple apps. Useful for Gigalixir or Heroku deployment when just one web port is exposed. Works with phoenix endpoints, plugs, and websockets.",
       package: package(),
@@ -29,10 +29,13 @@ defmodule MainProxy.MixProject do
   defp package() do
     [
       name: "main_proxy",
+      organization: "main_proxy",
       files: ["lib", "mix.exs", "README.md", "LICENSE.md"],
-      maintainers: ["Jesse Shieh"],
+      maintainers: ["Jason Axelson", "Jesse Shieh"],
       licenses: ["MIT"],
-      links: %{GitHub: "https://github.com/Main-Proxy/main_proxy"}
+      links: %{GitHub: "https://github.com/Main-Proxy/main_proxy"},
+      source_url: "https://github.com/Main-Proxy/main_proxy",
+      homepage_url: "https://github.com/Main-Proxy/main_proxy"
     ]
   end
 
