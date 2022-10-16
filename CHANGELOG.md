@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+Breaking change: Project has been renamed from `master_proxy` to `main_proxy`.
+To upgrade your project do a search and replace of:
+- `MasterProxy` -> `MainProxy`
+- `master_proxy` -> `main_proxy`
+
 The flexibility of MainProxy has been increased and it is now possible to
 generate configuration at runtime during application startup.
 
