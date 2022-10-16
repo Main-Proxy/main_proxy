@@ -12,7 +12,7 @@ defmodule MasterProxy.Integration.WebsocketClient do
     :ssl.start()
 
     :websocket_client.start_link(
-      String.to_charlist(url),
+      url,
       __MODULE__,
       [sender, serializer],
       extra_headers: headers
@@ -62,6 +62,10 @@ defmodule MasterProxy.Integration.WebsocketClient do
   end
 
   @doc false
+  def init([sender, serializer]) do
+    {:ok, %{sender: sender, join_ref: 1, ref: 0, serializer: serializer}}
+  end
+
   def init([sender, serializer], _conn_state) do
     {:ok, %{sender: sender, join_ref: 1, ref: 0, serializer: serializer}}
   end

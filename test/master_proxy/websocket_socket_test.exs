@@ -8,7 +8,7 @@ defmodule MasterProxy.Integration.WebSocketTest do
   alias __MODULE__.Endpoint
 
   @moduletag :capture_log
-  @port Application.fetch_env!(:master_proxy, :http)[:port]
+  @port Application.compile_env!(:master_proxy, [:http, :port])
   @path "ws://127.0.0.1:#{@port}/ws/websocket"
 
   # TODO: how does this work? when I try to configure
@@ -25,14 +25,23 @@ defmodule MasterProxy.Integration.WebSocketTest do
 
   defmodule MyApp.Proxy do
     use MasterProxy.Proxy
+
+    @impl MasterProxy.Proxy
+    def backends do
+      # matches everything and proxies over to the Endpoint here
+      [%{phoenix_endpoint: Endpoint}]
+    end
   end
 
   defmodule UserSocket do
     @behaviour Phoenix.Socket.Transport
 
-    def child_spec(opts) do
-      :value = Keyword.fetch!(opts, :custom)
-      Supervisor.child_spec({Task, fn -> :ok end}, [])
+    def child_spec(_opts) do
+      %{id: UserSocket, start: {Task, :start_link, [fn -> :ok end]}, restart: :transient}
+    end
+
+    def start_link(opts \\ []) do
+      GenServer.start_link(__MODULE__, opts, name: __MODULE__)
     end
 
     def connect(map) do
@@ -74,11 +83,6 @@ defmodule MasterProxy.Integration.WebSocketTest do
   end
 
   setup_all do
-    # capture_log(fn -> MasterProxy.Application.start(nil, nil) end)
-    # MasterProxy.Application.start(nil, nil)
-    # matches everything and proxies over to the Endpoint here
-    backends = [%{phoenix_endpoint: Endpoint}]
-    Application.put_env(:master_proxy, :backends, backends)
     # This needs to start so Phoenix.Config is initialized
     # among other things
     capture_log(fn -> Endpoint.start_link() end)
