@@ -32,7 +32,7 @@ defmodule MainProxy.MixProject do
       files: ["lib", "mix.exs", "README.md", "LICENSE.md"],
       maintainers: ["Jesse Shieh"],
       licenses: ["MIT"],
-      links: %{GitHub: "https://github.com/jesseshieh/main_proxy"}
+      links: %{GitHub: "https://github.com/Main-Proxy/main_proxy"}
     ]
   end
 
