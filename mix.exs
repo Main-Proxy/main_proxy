@@ -48,7 +48,6 @@ defmodule MasterProxy.MixProject do
       # test
       {:stream_data, "~> 0.4", only: [:dev, :test]},
       {:jason, "~> 1.0", only: :test},
-      {:websocket_client, "~> 1.5", only: :test}
     ]
   end
 end
