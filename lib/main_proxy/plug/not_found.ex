@@ -1,4 +1,4 @@
-defmodule MasterProxy.Plug.NotFound do
+defmodule MainProxy.Plug.NotFound do
   @moduledoc false
   @behaviour Plug
 
@@ -12,7 +12,7 @@ defmodule MasterProxy.Plug.NotFound do
 
   @impl true
   def call(conn, opts) do
-    Logger.debug("MasterProxy.NotFound call opts: #{inspect(opts)}")
+    Logger.debug("MainProxy.NotFound call opts: #{inspect(opts)}")
 
     conn
     |> send_resp(404, "No backends matched")

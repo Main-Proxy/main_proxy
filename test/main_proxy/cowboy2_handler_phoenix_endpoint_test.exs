@@ -1,10 +1,10 @@
-defmodule MasterProxy.Cowboy2HandlerPhoenixEndpointTest do
+defmodule MainProxy.Cowboy2HandlerPhoenixEndpointTest do
   use ExUnit.Case
   use Plug.Test
   use ExUnitProperties
 
   setup do
-    {:ok, pid} = start_supervised(MasterProxy.Test.Endpoint)
+    {:ok, pid} = start_supervised(MainProxy.Test.Endpoint)
 
     {:ok, pid: pid}
   end
@@ -27,19 +27,19 @@ defmodule MasterProxy.Cowboy2HandlerPhoenixEndpointTest do
   end
 
   defp matches_host?(backend_host, conn_host) do
-    # opts = %{backends: [%{host: backend_host, plug: MasterProxy.Plug.Test}]}
+    # opts = %{backends: [%{host: backend_host, plug: MainProxy.Plug.Test}]}
 
     # conn(:get, "/")
     # |> Map.put(:host, conn_host)
-    # |> MasterProxy.Plug.call(MasterProxy.Plug.init(opts))
+    # |> MainProxy.Plug.call(MainProxy.Plug.init(opts))
 
-    backends = [%{host: backend_host, phoenix_endpoint: MasterProxy.Test.Endpoint}]
+    backends = [%{host: backend_host, phoenix_endpoint: MainProxy.Test.Endpoint}]
 
     # these are the required params..
     req = build_req("http", "GET", conn_host, "/")
 
     {:ok, _req, {_handler, _opts}} =
-      MasterProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+      MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1

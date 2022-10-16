@@ -1,4 +1,4 @@
-defmodule MasterProxy.Test.Endpoint do
-  use Phoenix.Endpoint, otp_app: :master_proxy
-  plug(MasterProxy.Test.Router)
+defmodule MainProxy.Test.Endpoint do
+  use Phoenix.Endpoint, otp_app: :main_proxy
+  plug(MainProxy.Test.Router)
 end

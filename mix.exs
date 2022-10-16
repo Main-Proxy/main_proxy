@@ -1,9 +1,9 @@
-defmodule MasterProxy.MixProject do
+defmodule MainProxy.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :master_proxy,
+      app: :main_proxy,
       version: "0.1.4",
       description:
         "Proxies requests to multiple apps. Useful for Gigalixir or Heroku deployment when just one web port is exposed. Works with phoenix endpoints, plugs, and websockets.",
@@ -28,11 +28,11 @@ defmodule MasterProxy.MixProject do
 
   defp package() do
     [
-      name: "master_proxy",
+      name: "main_proxy",
       files: ["lib", "mix.exs", "README.md", "LICENSE.md"],
       maintainers: ["Jesse Shieh"],
       licenses: ["MIT"],
-      links: %{GitHub: "https://github.com/jesseshieh/master_proxy"}
+      links: %{GitHub: "https://github.com/jesseshieh/main_proxy"}
     ]
   end
 

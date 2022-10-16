@@ -1,26 +1,26 @@
-defmodule MasterProxy.Cowboy2Handler do
+defmodule MainProxy.Cowboy2Handler do
   require Logger
 
   @moduledoc false
 
   defp connection() do
-    Application.get_env(:master_proxy, :conn, Plug.Cowboy.Conn)
+    Application.get_env(:main_proxy, :conn, Plug.Cowboy.Conn)
   end
 
   defp log_request(message) do
-    if Application.get_env(:master_proxy, :log_requests, true) do
+    if Application.get_env(:main_proxy, :log_requests, true) do
       Logger.debug(message)
     end
   end
 
   @not_found_backend %{
-    plug: MasterProxy.Plug.NotFound
+    plug: MainProxy.Plug.NotFound
   }
 
   # endpoint and opts are not passed in because they
   # are dynamically chosen
   def init(req, {_endpoint, opts}) do
-    log_request("MasterProxy.Cowboy2Handler called with req: #{inspect(req)}")
+    log_request("MainProxy.Cowboy2Handler called with req: #{inspect(req)}")
 
     conn = connection().conn(req)
 
@@ -67,7 +67,7 @@ defmodule MasterProxy.Cowboy2Handler do
   defp maybe_send(%Plug.Conn{} = conn, _plug), do: conn
 
   defp maybe_send(other, plug) do
-    raise "MasterProxy expected #{inspect(plug)} to return Plug.Conn but got: " <> inspect(other)
+    raise "MainProxy expected #{inspect(plug)} to return Plug.Conn but got: " <> inspect(other)
   end
 
   defp backend_matches?(conn, backend) do

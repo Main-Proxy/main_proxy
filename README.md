@@ -1,4 +1,4 @@
-# MasterProxy
+# MainProxy
 
 <!-- MDOC !-->
 
@@ -8,14 +8,14 @@ Route requests to other Phoenix Endpoints or Plugs with WebSocket support.
 
 ## Installation
 
-Add MasterProxy to your list of dependencies in `mix.exs`.
+Add MainProxy to your list of dependencies in `mix.exs`.
 
-Note: if you are running an umbrella project, adding MasterProxy as a dependency at the root `mix.exs` won't work. Instead, either add it to one of your child apps or create a new child app solely for the proxy.
+Note: if you are running an umbrella project, adding MainProxy as a dependency at the root `mix.exs` won't work. Instead, either add it to one of your child apps or create a new child app solely for the proxy.
 
 ```elixir
 def deps do
   [
-    {:master_proxy, "~> 0.1"},
+    {:main_proxy, "~> 0.1"},
   ]
 end
 ```
@@ -26,14 +26,14 @@ the `merge_config/2` callback of your proxy module (more info below) if you need
 to generate configuration at runtime.
 
 ```elixir
-config :master_proxy,
+config :main_proxy,
   # any Cowboy options are allowed
   http: [:inet6, port: 4080],
   https: [:inet6, port: 4443]
 ```
 
 Note: backends can also be configured via configuration, but configuring the
-backends via your proxy module (see the `use MasterProxy.Proxy` example below)
+backends via your proxy module (see the `use MainProxy.Proxy` example below)
 is recommended.
 
 See [Configuration Examples](#module-configuration-examples) for more.
@@ -43,9 +43,9 @@ Then create the proxy module and add it to your application startup (often in `M
 module:
 ``` elixir
 defmodule MyApp.Proxy do
-  use MasterProxy.Proxy
+  use MainProxy.Proxy
 
-  @impl MasterProxy.Proxy
+  @impl MainProxy.Proxy
   def backends do
     [
       %{
@@ -58,8 +58,8 @@ defmodule MyApp.Proxy do
       },
       %{
         verb: ~r/get/i,
-        path: ~r{^/master-proxy-plug-test$},
-        plug: MasterProxy.Plug.Test,
+        path: ~r{^/main-proxy-plug-test$},
+        plug: MainProxy.Plug.Test,
         opts: [1, 2, 3]
       }
     ]
@@ -75,10 +75,10 @@ Proxies can be added to the supervision tree as follows (usually in `MyApp.Appli
       MyApp.Proxy,
     ]
 
-To avoid the platform routing requests directly to your Web apps' Endpoints, and thus bypassing the Endpoint on which MasterProxy is running, you can configure your other Web apps' Endpoints to not start a server in your production config.
+To avoid the platform routing requests directly to your Web apps' Endpoints, and thus bypassing the Endpoint on which MainProxy is running, you can configure your other Web apps' Endpoints to not start a server in your production config.
 
 ```elixir
-# An Endpoint on which MasterProxy is not running
+# An Endpoint on which MainProxy is not running
 config :my_app_web, MyAppWeb.Endpoint,
   # ...
   server: false
@@ -105,9 +105,9 @@ config :my_app_web, MyAppWeb.Endpoint,
 
 ```elixir
 defmodule MyApp.Proxy do
-  use MasterProxy.Proxy
+  use MainProxy.Proxy
 
-  @impl MasterProxy.Proxy
+  @impl MainProxy.Proxy
   def backends do
     [
       %{
@@ -134,7 +134,7 @@ end
 ### Configuration via application config
 
 ``` elixir
-config :master_proxy,
+config :main_proxy,
   http: [port: 80],
   backends: [
     %{
@@ -150,12 +150,12 @@ config :master_proxy,
 
 <!-- MDOC !-->
 
-## How does MasterProxy work?
+## How does MainProxy work?
 
-1. We start a Cowboy server with a single dispatch handler: `MasterProxy.Cowboy2Handler`.
+1. We start a Cowboy server with a single dispatch handler: `MainProxy.Cowboy2Handler`.
 2. The handler checks the verb, host and path of the request, and compares them to the supplied configuration to determine where to route the request.
-3. If the backend that matched is a `phoenix_endpoint`, MasterProxy delegates to the `Phoenix.Endpoint.Cowboy2Handler` with your app's Endpoint.
-4. If the backend that matched is a `plug`, MasterProxy calls the plug as normal.
+3. If the backend that matched is a `phoenix_endpoint`, MainProxy delegates to the `Phoenix.Endpoint.Cowboy2Handler` with your app's Endpoint.
+4. If the backend that matched is a `plug`, MainProxy calls the plug as normal.
 5. If no backend is matched, a text response with a status code of 404 is returned.
 
 ## Development
@@ -168,4 +168,4 @@ curl -i localhost:4080
 
 ## Thanks
 
- This application is based on the [master_proxy](https://github.com/wojtekmach/acme_bank/tree/master/apps/master_proxy) application inside the [acme_bank](https://github.com/wojtekmach/acme_bank) project, which was based on a gist shared by [Gazler](https://github.com/Gazler).
+ This application is based on the [main_proxy](https://github.com/wojtekmach/acme_bank/tree/master/apps/main_proxy) application inside the [acme_bank](https://github.com/wojtekmach/acme_bank) project, which was based on a gist shared by [Gazler](https://github.com/Gazler).
