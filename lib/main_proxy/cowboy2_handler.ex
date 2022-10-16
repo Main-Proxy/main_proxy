@@ -17,9 +17,57 @@ defmodule MainProxy.Cowboy2Handler do
     plug: MainProxy.Plug.NotFound
   }
 
+  defp log_request_telemetry(req, result, duration) do
+    req_attrs = req_attrs(req)
+
+    result_attrs =
+      case result do
+        {:ok, _http_result, {endpoint, _opts}} when is_atom(endpoint) ->
+          %{type: :http, plug: endpoint}
+
+        {:cowboy_websocket, _websocket_result, socket_info, _opts} ->
+          case socket_info do
+            [_ | {_, %Phoenix.Socket{endpoint: endpoint}}] ->
+              %{type: :websocket, plug: endpoint}
+
+            _ ->
+              %{type: :websocket}
+          end
+
+        _other ->
+          %{type: :unknown}
+      end
+
+    :telemetry.execute(
+      [:main_proxy, :request, :done],
+      %{duration: duration},
+      %{
+        req: req_attrs,
+        result: result_attrs
+      }
+    )
+  end
+
+  defp req_attrs(req) do
+    user_agent = get_in(req, [:headers, "user-agent"])
+    host = get_in(req, [:host])
+    path = get_in(req, [:path])
+    method = get_in(req, [:method])
+    scheme = get_in(req, [:scheme])
+
+    %{
+      user_agent: user_agent,
+      host: host,
+      path: path,
+      method: method,
+      scheme: scheme
+    }
+  end
+
   # endpoint and opts are not passed in because they
   # are dynamically chosen
   def init(req, {_endpoint, opts}) do
+    start = System.monotonic_time()
     log_request("MainProxy.Cowboy2Handler called with req: #{inspect(req)}")
 
     conn = connection().conn(req)
@@ -30,6 +78,12 @@ defmodule MainProxy.Cowboy2Handler do
     log_request("Backend chosen: #{inspect(backend)}")
 
     dispatch(backend, req)
+    |> tap(fn result ->
+      # Duration calculation approach copied from phoenix:
+      # https://github.com/phoenixframework/phoenix/blob/v1.6.14/lib/phoenix/router.ex#L342-L348
+      duration = System.monotonic_time() - start
+      log_request_telemetry(req, result, duration)
+    end)
   end
 
   defp choose_backend(conn, backends) do
