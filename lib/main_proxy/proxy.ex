@@ -1,4 +1,4 @@
-defmodule MasterProxy.Proxy do
+defmodule MainProxy.Proxy do
   @moduledoc """
   Defines a proxy
 
@@ -7,15 +7,15 @@ defmodule MasterProxy.Proxy do
   Basic example:
 
       defmodule MyApp.Proxy do
-        use MasterProxy.Proxy
+        use MainProxy.Proxy
       end
 
   Example with [SiteEncrypt](https://hex.pm/packages/site_encrypt):
 
       defmodule MyApp.Proxy do
-        use MasterProxy.Proxy
+        use MainProxy.Proxy
 
-        @impl MasterProxy.Proxy
+        @impl MainProxy.Proxy
         def merge_config(:https, opts) do
           Config.Reader.merge(opts, SiteEncrypt.https_keys(MyAppWeb.Endpoint))
         end
@@ -42,7 +42,7 @@ defmodule MasterProxy.Proxy do
 
   Example:
 
-      @impl MasterProxy.Proxy
+      @impl MainProxy.Proxy
       def backends do
         [
           %{
@@ -66,7 +66,7 @@ defmodule MasterProxy.Proxy do
     quote do
       use Supervisor
 
-      @behaviour MasterProxy.Proxy
+      @behaviour MainProxy.Proxy
 
       def start_link(opts \\ []) do
         Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
@@ -77,8 +77,8 @@ defmodule MasterProxy.Proxy do
         backends = __MODULE__.backends()
 
         children =
-          if MasterProxy.Proxy.server?() do
-            MasterProxy.Proxy.spec([backends: backends, callback_module: __MODULE__], __MODULE__)
+          if MainProxy.Proxy.server?() do
+            MainProxy.Proxy.spec([backends: backends, callback_module: __MODULE__], __MODULE__)
           else
             []
           end
@@ -87,7 +87,7 @@ defmodule MasterProxy.Proxy do
       end
 
       def merge_config(_scheme, opts), do: opts
-      def backends, do: MasterProxy.Proxy.default_fetch_backends()
+      def backends, do: MainProxy.Proxy.default_fetch_backends()
 
       defoverridable merge_config: 2, backends: 0
     end
@@ -95,13 +95,13 @@ defmodule MasterProxy.Proxy do
 
   @doc false
   def default_fetch_backends do
-    case Application.fetch_env(:master_proxy, :backends) do
+    case Application.fetch_env(:main_proxy, :backends) do
       {:ok, backends} ->
         backends
 
       :error ->
         Logger.warn(
-          "No backends specified. Either configure :master_proxy, :backends or define a " <>
+          "No backends specified. Either configure :main_proxy, :backends or define a " <>
             "`backend/0` function in your `Proxy` module."
         )
     end
@@ -111,7 +111,7 @@ defmodule MasterProxy.Proxy do
   @doc false
   def spec(handler_opts, callback_module) do
     Enum.reduce([:http, :https], [], fn scheme, result ->
-      case Application.get_env(:master_proxy, scheme) do
+      case Application.get_env(:main_proxy, scheme) do
         nil ->
           # no config for this scheme, that's ok, just skip
           result
@@ -119,7 +119,7 @@ defmodule MasterProxy.Proxy do
         scheme_opts ->
           opts = build_opts(scheme, scheme_opts, handler_opts, callback_module)
 
-          Logger.info("[master_proxy] Listening on #{scheme} with options: #{inspect(opts)}")
+          Logger.info("[main_proxy] Listening on #{scheme} with options: #{inspect(opts)}")
 
           [{Plug.Cowboy, scheme: scheme, plug: {nil, nil}, options: opts} | result]
       end
@@ -128,7 +128,7 @@ defmodule MasterProxy.Proxy do
 
   defp build_opts(scheme, scheme_opts, handler_opts, callback_module) do
     port = :proplists.get_value(:port, scheme_opts)
-    dispatch = [{:_, [{:_, MasterProxy.Cowboy2Handler, {nil, handler_opts}}]}]
+    dispatch = [{:_, [{:_, MainProxy.Cowboy2Handler, {nil, handler_opts}}]}]
 
     opts =
       callback_module.merge_config(scheme,
@@ -142,16 +142,16 @@ defmodule MasterProxy.Proxy do
   @doc false
   def server?() do
     # the server will be started in following situations:
-    # + enable `server: true` option for master_proxy (by default)
+    # + enable `server: true` option for main_proxy (by default)
     # + run `iex -S mix phx.server`
     # + run `mix phx.server`
     Application.get_env(:phoenix, :serve_endpoints, false) ||
-      Application.get_env(:master_proxy, :server, true)
+      Application.get_env(:main_proxy, :server, true)
   end
 
   # :undefined is what :proplist.get_value returns
   defp port_to_integer(:undefined),
-    do: raise("port is missing from the master_proxy configuration")
+    do: raise("port is missing from the main_proxy configuration")
 
   defp port_to_integer(port) when is_binary(port), do: String.to_integer(port)
   defp port_to_integer(port) when is_integer(port), do: port

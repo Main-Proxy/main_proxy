@@ -1,4 +1,4 @@
-defmodule MasterProxy do
+defmodule MainProxy do
   @external_resource "README.md"
 
   @moduledoc "README.md"

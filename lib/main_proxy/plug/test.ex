@@ -1,4 +1,4 @@
-defmodule MasterProxy.Plug.Test do
+defmodule MainProxy.Plug.Test do
   @moduledoc false
   @behaviour Plug
 

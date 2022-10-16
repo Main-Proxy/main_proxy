@@ -5,18 +5,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-The flexibility of MasterProxy has been increased and it is now possible to
+Breaking change: Project has been renamed from `master_proxy` to `main_proxy`.
+To upgrade your project do a search and replace of:
+- `MasterProxy` -> `MainProxy`
+- `master_proxy` -> `main_proxy`
+
+The flexibility of MainProxy has been increased and it is now possible to
 generate configuration at runtime during application startup.
 
 Breaking change: You must create a `MyApp.Proxy` module that calls `use
-MasterProxy`. This allows configuration to be generated at runtime which is
+MainProxy`. This allows configuration to be generated at runtime which is
 important for usage with SiteEncrypt along with other setups.
 
 Example module:
 
 ```elixir
 defmodule MyApp.Proxy do
-  use MasterProxy.Proxy
+  use MainProxy.Proxy
 end
 ```
 
@@ -37,14 +42,14 @@ instead of inside application configuration. This change is in line with the
 configuration"](https://hexdocs.pm/elixir/1.13/library-guidelines.html#avoid-application-configuration)
 library guideline.
 
-See `MasterProxy.Proxy` docs for details about the new module.
+See `MainProxy.Proxy` docs for details about the new module.
 
 ## 0.1.4 - 2022-01-21
 ### Added
-- Add server and domain options [#16](https://github.com/jesseshieh/master_proxy/pull/16)
+- Add server and domain options [#16](https://github.com/Main-Proxy/main_proxy/pull/16)
   - Domain allows you to check if a request matches the given domain without using a regex
-  - server allows you to prevent MasterProxy from starting unless you run `mix phx.server` (fixes [#8](https://github.com/jesseshieh/master_proxy/issues/8))
+  - server allows you to prevent MainProxy from starting unless you run `mix phx.server` (fixes [#8](https://github.com/Main-Proxy/main_proxy/issues/8))
 
 ## Previous Releases
 
-See the commit history and pull requests for details: https://github.com/jesseshieh/master_proxy/commits/master
+See the commit history and pull requests for details: https://github.com/Main-Proxy/main_proxy/commits/main

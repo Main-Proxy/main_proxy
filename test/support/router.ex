@@ -1,5 +1,5 @@
-defmodule MasterProxy.Test.Router do
+defmodule MainProxy.Test.Router do
   use Phoenix.Router
 
-  get "/", MasterProxy.Test.PageController, :index
+  get "/", MainProxy.Test.PageController, :index
 end

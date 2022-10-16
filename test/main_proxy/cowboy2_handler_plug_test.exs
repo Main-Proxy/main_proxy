@@ -1,4 +1,4 @@
-defmodule MasterProxy.Cowboy2HandlerPlugTest do
+defmodule MainProxy.Cowboy2HandlerPlugTest do
   use ExUnit.Case
   use Plug.Test
   use ExUnitProperties
@@ -21,13 +21,12 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
   end
 
   defp matches_domain?(backend_domain, conn_domain) do
-    backends = [%{domain: backend_domain, plug: MasterProxy.Plug.Test}]
+    backends = [%{domain: backend_domain, plug: MainProxy.Plug.Test}]
 
     # these are the required params..
     req = build_req("http", "GET", conn_domain, "/")
 
-    {:ok, _req, {_handler, _opts}} =
-      MasterProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+    {:ok, _req, {_handler, _opts}} = MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1
@@ -42,13 +41,12 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
   end
 
   defp matches_host?(backend_host, conn_host) do
-    backends = [%{host: backend_host, plug: MasterProxy.Plug.Test}]
+    backends = [%{host: backend_host, plug: MainProxy.Plug.Test}]
 
     # these are the required params..
     req = build_req("http", "GET", conn_host, "/")
 
-    {:ok, _req, {_handler, _opts}} =
-      MasterProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+    {:ok, _req, {_handler, _opts}} = MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1
@@ -63,13 +61,12 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
   end
 
   defp matches_path?(backend_path, conn_path) do
-    backends = [%{path: backend_path, plug: MasterProxy.Plug.Test}]
+    backends = [%{path: backend_path, plug: MainProxy.Plug.Test}]
 
     # these are the required params..
     req = build_req("http", "GET", "localhost", conn_path)
 
-    {:ok, _req, {_handler, _opts}} =
-      MasterProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+    {:ok, _req, {_handler, _opts}} = MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1
@@ -84,13 +81,12 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
   end
 
   defp matches_verb?(backend_verb, conn_verb) do
-    backends = [%{verb: backend_verb, plug: MasterProxy.Plug.Test}]
+    backends = [%{verb: backend_verb, plug: MainProxy.Plug.Test}]
 
     # these are the required params..
     req = build_req("http", conn_verb, "localhost", "/")
 
-    {:ok, _req, {_handler, _opts}} =
-      MasterProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+    {:ok, _req, {_handler, _opts}} = MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1
@@ -111,15 +107,14 @@ defmodule MasterProxy.Cowboy2HandlerPlugTest do
         domain: conn_host,
         host: backend_host,
         path: backend_path,
-        plug: MasterProxy.Plug.Test
+        plug: MainProxy.Plug.Test
       }
     ]
 
     # these are the required params..
     req = build_req("http", conn_verb, conn_host, conn_path)
 
-    {:ok, _req, {_handler, _opts}} =
-      MasterProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+    {:ok, _req, {_handler, _opts}} = MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
 
     my_pid = self()
     stream_id = 1
