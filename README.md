@@ -10,7 +10,7 @@ Route requests to other Phoenix Endpoints or Plugs with WebSocket support.
 
 Add MainProxy to your list of dependencies in `mix.exs`.
 
-Note: if you are running an umbrella project, adding MainProxy as a dependency at the root `mix.exs` won't work. Instead, either add it to one of your child apps or create a new child app solely for the proxy.
+> If you are running an umbrella project, adding MainProxy as a dependency at the root `mix.exs` won't work. Instead, either add it to one of your child apps or create a new child app solely for the proxy.
 
 ```elixir
 def deps do
@@ -20,27 +20,17 @@ def deps do
 end
 ```
 
-Configure rules for routing requests by adding configuration (i.e.
-`config/config.exs`). Backend configuration is optional and can be replaced by
-the `merge_config/2` callback of your proxy module (more info below) if you need
-to generate configuration at runtime.
+## Usage
+
+Configure listening options for MainProxy:
 
 ```elixir
 config :main_proxy,
-  # any Cowboy options are allowed
-  http: [:inet6, port: 4080],
-  https: [:inet6, port: 4443]
+  http: [port: 4080],
+  https: [port: 4443]
 ```
 
-Note: backends can also be configured via configuration, but configuring the
-backends via your proxy module (see the `use MainProxy.Proxy` example below)
-is recommended.
-
-See [Configuration Examples](#module-configuration-examples) for more.
-
-Then create the proxy module and add it to your application startup (often in `MyApp.Application`):
-
-module:
+Create a proxy module which configures backends:
 
 ```elixir
 defmodule MyApp.Proxy do
@@ -51,7 +41,7 @@ defmodule MyApp.Proxy do
     [
       %{
         domain: "my-cool-app.com",
-        phoenix_endpoint: MyCoolAppWeb.Endpoint
+        phoenix_endpoint: MyAppWeb.Endpoint
       },
       %{
         domain: "members.my-cool-app.com",
@@ -68,24 +58,35 @@ defmodule MyApp.Proxy do
 end
 ```
 
-Proxies must be explicitly started as part of your application supervision tree.
-Proxies can be added to the supervision tree as follows (usually in `MyApp.Application`):
+> Backends can also be configured via configuration:
+>
+> ```elixir
+> config :main_proxy,
+>   backends: [
+>     # ...
+>   ]
+> ```
+>
+> But, it's not the recommended way.
 
-    children = [
-      # ... other children
-      MyApp.Proxy,
-    ]
-
-To avoid the platform routing requests directly to your Web apps' Endpoints, and thus bypassing the Endpoint on which MainProxy is running, you can configure your other Web apps' Endpoints to not start a server in your production config.
+Add above created proxy module to the supervision tree:
 
 ```elixir
-# An Endpoint on which MainProxy is not running
-config :my_app_web, MyAppWeb.Endpoint,
-  # ...
-  server: false
+children = [
+  # ... other children
+  MyApp.Proxy,
+]
 ```
 
-## Available Options
+Configure all endpoints to not start a server in order to avoid endpoints bypassing MainProxy:
+
+```elixir
+# ...
+config :my_app, MyAppWeb.Endpoint, server: false
+config :my_app_members, MyAppMembersWeb.Endpoint, server: false
+```
+
+## Available Configuration Options
 
 - `:http` - the configuration for the HTTP server. It accepts all options as defined by [Plug.Cowboy](https://hexdocs.pm/plug_cowboy/).
 - `:https` - the configuration for the HTTPS server. It accepts all options as defined by [Plug.Cowboy](https://hexdocs.pm/plug_cowboy/).
@@ -98,8 +99,6 @@ config :my_app_web, MyAppWeb.Endpoint,
   - `:phoenix_endpoint` / `:plug`
   - `:opts` - only for `:plug`
 - `:log_requests` - `true` by default. Log the requests or not.
-
-<a id="module-configuration-examples"></a>
 
 ## Configuration Examples
 
