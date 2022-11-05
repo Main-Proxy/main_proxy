@@ -62,6 +62,8 @@ end
 >
 > ```elixir
 > config :main_proxy,
+>   http: [port: 4080],
+>   https: [port: 4443],
 >   backends: [
 >     # ...
 >   ]
@@ -91,7 +93,7 @@ config :my_app_members, MyAppMembersWeb.Endpoint, server: false
 - `:http` - the configuration for the HTTP server. It accepts all options as defined by [Plug.Cowboy](https://hexdocs.pm/plug_cowboy/).
 - `:https` - the configuration for the HTTPS server. It accepts all options as defined by [Plug.Cowboy](https://hexdocs.pm/plug_cowboy/).
 - `:server` - `true` by default. If you are running application with `mix phx.server`, this option is ignored, and the server will always be started.
-- `:backends` - the rule for routing requests. See [Configuration Examples](#configuration-examples) for more.
+- `:backends` - the rule for routing requests:
   - `:domain`
   - `:verb`
   - `:host`
@@ -99,55 +101,6 @@ config :my_app_members, MyAppMembersWeb.Endpoint, server: false
   - `:phoenix_endpoint` / `:plug`
   - `:opts` - only for `:plug`
 - `:log_requests` - `true` by default. Log the requests or not.
-
-## Configuration Examples
-
-### Route requests to apps based on hostname
-
-```elixir
-defmodule MyApp.Proxy do
-  use MainProxy.Proxy
-
-  @impl MainProxy.Proxy
-  def backends do
-    [
-      %{
-        host: ~r{^app-name\.gigalixirapp\.com$},
-        phoenix_endpoint: MyAppWeb.Endpoint
-      },
-      %{
-        host: ~r{^www\.example\.com$},
-        phoenix_endpoint: MyAppWeb.Endpoint
-      },
-      %{
-        host: ~r{^api\.example\.com$},
-        phoenix_endpoint: MyAppApiWeb.Endpoint
-      },
-      %{
-        host: ~r{^members\.example\.com$},
-        phoenix_endpoint: MyAppMembersWeb.Endpoint
-      }
-    ]
-  end
-end
-```
-
-### Configuration via application config
-
-```elixir
-config :main_proxy,
-  http: [port: 80],
-  backends: [
-    %{
-      host: ~r{^app-name\.gigalixirapp\.com$},
-      phoenix_endpoint: MyAppWeb.Endpoint
-    },
-    %{
-      host: ~r{^www\.example\.com$},
-      phoenix_endpoint: MyAppWeb.Endpoint
-    }
-  ]
-```
 
 <!-- MDOC !-->
 
