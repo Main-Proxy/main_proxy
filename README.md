@@ -41,7 +41,8 @@ See [Configuration Examples](#module-configuration-examples) for more.
 Then create the proxy module and add it to your application startup (often in `MyApp.Application`):
 
 module:
-``` elixir
+
+```elixir
 defmodule MyApp.Proxy do
   use MainProxy.Proxy
 
@@ -87,18 +88,19 @@ config :my_app_web, MyAppWeb.Endpoint,
 ## Available Options
 
 - `:http` - the configuration for the HTTP server. It accepts all options as defined by [Plug.Cowboy](https://hexdocs.pm/plug_cowboy/).
- - `:https` - the configuration for the HTTPS server. It accepts all options as defined by [Plug.Cowboy](https://hexdocs.pm/plug_cowboy/).
- - `:server` - `true` by default. If you are running application with `mix phx.server`, this option is ignored, and the server will always be started.
- - `:backends` - the rule for routing requests. See [Configuration Examples](#configuration-examples) for more.
-   - `:domain`
-   - `:verb`
-   - `:host`
-   - `:path`
-   - `:phoenix_endpoint` / `:plug`
-   - `:opts` - only for `:plug`
- - `:log_requests` - `true` by default. Log the requests or not.
+- `:https` - the configuration for the HTTPS server. It accepts all options as defined by [Plug.Cowboy](https://hexdocs.pm/plug_cowboy/).
+- `:server` - `true` by default. If you are running application with `mix phx.server`, this option is ignored, and the server will always be started.
+- `:backends` - the rule for routing requests. See [Configuration Examples](#configuration-examples) for more.
+  - `:domain`
+  - `:verb`
+  - `:host`
+  - `:path`
+  - `:phoenix_endpoint` / `:plug`
+  - `:opts` - only for `:plug`
+- `:log_requests` - `true` by default. Log the requests or not.
 
 <a id="module-configuration-examples"></a>
+
 ## Configuration Examples
 
 ### Route requests to apps based on hostname
@@ -133,7 +135,7 @@ end
 
 ### Configuration via application config
 
-``` elixir
+```elixir
 config :main_proxy,
   http: [port: 80],
   backends: [
@@ -168,4 +170,4 @@ curl -i localhost:4080
 
 ## Thanks
 
- This application is based on the [main_proxy](https://github.com/wojtekmach/acme_bank/tree/master/apps/main_proxy) application inside the [acme_bank](https://github.com/wojtekmach/acme_bank) project, which was based on a gist shared by [Gazler](https://github.com/Gazler).
+This application is based on the [main_proxy](https://github.com/wojtekmach/acme_bank/tree/master/apps/main_proxy) application inside the [acme_bank](https://github.com/wojtekmach/acme_bank) project, which was based on a gist shared by [Gazler](https://github.com/Gazler).
