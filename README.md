@@ -106,7 +106,7 @@ config :my_app_members, MyAppMembersWeb.Endpoint, server: false
 
 ## How does MainProxy work?
 
-1. We start a Cowboy server with a single dispatch handler: `MainProxy.Cowboy2Handler`.
+1. MainProxy starts a Cowboy server with a single dispatch handler: `MainProxy.Cowboy2Handler`.
 2. The handler checks the verb, host and path of the request, and compares them to the supplied configuration to determine where to route the request.
 3. If the backend that matched is a `phoenix_endpoint`, MainProxy delegates to the `Phoenix.Endpoint.Cowboy2Handler` with your app's Endpoint.
 4. If the backend that matched is a `plug`, MainProxy calls the plug as normal.
@@ -122,4 +122,7 @@ curl -i localhost:4080
 
 ## Thanks
 
-This application is based on the [main_proxy](https://github.com/wojtekmach/acme_bank/tree/master/apps/main_proxy) application inside the [acme_bank](https://github.com/wojtekmach/acme_bank) project, which was based on a gist shared by [Gazler](https://github.com/Gazler).
+This library is based on:
+
+- [master_proxy](https://github.com/wojtekmach/acme_bank/tree/master/apps/master_proxy) application inside the [acme_bank](https://github.com/wojtekmach/acme_bank) project from [wojtekmach](https://github.com/wojtekmach).
+- [master_proxy.ex](https://gist.github.com/Gazler/fe7ed5dc598250002dfe) from [Gazler](https://github.com/Gazler).
