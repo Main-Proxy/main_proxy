@@ -54,7 +54,7 @@ defmodule MainProxy.Proxy do
         backends = __MODULE__.backends()
 
         children =
-          if MainProxy.should_start_server? do
+          if MainProxy.should_start_server?() do
             MainProxy.spec([backends: backends, callback_module: __MODULE__], __MODULE__)
           else
             []
