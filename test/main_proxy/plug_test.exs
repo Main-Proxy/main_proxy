@@ -1,22 +1,20 @@
-defmodule MainProxy.Cowboy2HandlerPlugTest do
+defmodule MainProxy.PlugTest do
   use ExUnit.Case
   use Plug.Test
   use ExUnitProperties
 
+  setup do
+    {:ok, pid} = start_supervised(MainProxy.Test.Endpoint)
+
+    {:ok, pid: pid}
+  end
+
   defp build_req(scheme, method, host, path, headers \\ %{}) do
-    %{
-      path: path,
-      host: host,
-      port: 4000,
-      method: method,
-      headers: headers,
-      qs: "",
-      peer: {{0, 0, 0, 0, 0, 65535, 32512, 1}, 49020},
-      scheme: scheme,
-      version: :"HTTP/1.1",
-      streamid: 1,
-      pid: self(),
-      cert: :undefined
+    %Plug.Conn{
+      Plug.Test.conn(method, path)
+      | scheme: scheme,
+        host: host,
+        req_headers: headers
     }
   end
 
@@ -24,80 +22,65 @@ defmodule MainProxy.Cowboy2HandlerPlugTest do
     backends = [%{domain: backend_domain, plug: MainProxy.Plug.Test}]
 
     # these are the required params..
-    req = build_req("http", "GET", conn_domain, "/")
+    conn = build_req("http", "GET", conn_domain, "/")
 
-    {:ok, _req, {_handler, _opts}} = MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+    updated_opts = MainProxy.Plug.init(backends: backends)
+    conn = MainProxy.Plug.call(conn, updated_opts)
 
-    my_pid = self()
-    stream_id = 1
+    {status, headers, body} = Plug.Test.sent_resp(conn)
+    {status, headers, body}
+  end
 
-    receive do
-      {{^my_pid, ^stream_id}, {:response, status, headers, body}} ->
-        {status, headers, body}
-        # otherwise -> IO.inspect otherwise
-    after
-      0 -> flunk("timed out")
-    end
+  defp matches_domain_phoenix_endpoint?(backend_domain, conn_domain) do
+    backends = [%{domain: backend_domain, phoenix_endpoint: MainProxy.Test.Endpoint}]
+
+    # these are the required params..
+    conn = build_req("http", "GET", conn_domain, "/")
+
+    updated_opts = MainProxy.Plug.init(backends: backends)
+    conn = MainProxy.Plug.call(conn, updated_opts)
+
+    {status, headers, body} = Plug.Test.sent_resp(conn)
+    {status, headers, body}
   end
 
   defp matches_host?(backend_host, conn_host) do
     backends = [%{host: backend_host, plug: MainProxy.Plug.Test}]
 
     # these are the required params..
-    req = build_req("http", "GET", conn_host, "/")
+    conn = build_req("http", "GET", conn_host, "/")
 
-    {:ok, _req, {_handler, _opts}} = MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+    updated_opts = MainProxy.Plug.init(backends: backends)
+    conn = MainProxy.Plug.call(conn, updated_opts)
 
-    my_pid = self()
-    stream_id = 1
-
-    receive do
-      {{^my_pid, ^stream_id}, {:response, status, headers, body}} ->
-        {status, headers, body}
-        # otherwise -> IO.inspect otherwise
-    after
-      0 -> flunk("timed out")
-    end
+    {status, headers, body} = Plug.Test.sent_resp(conn)
+    {status, headers, body}
   end
 
   defp matches_path?(backend_path, conn_path) do
     backends = [%{path: backend_path, plug: MainProxy.Plug.Test}]
 
     # these are the required params..
-    req = build_req("http", "GET", "localhost", conn_path)
+    conn = build_req("http", "GET", "localhost", conn_path)
 
-    {:ok, _req, {_handler, _opts}} = MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+    updated_opts = MainProxy.Plug.init(backends: backends)
+    conn = MainProxy.Plug.call(conn, updated_opts)
 
-    my_pid = self()
-    stream_id = 1
-
-    receive do
-      {{^my_pid, ^stream_id}, {:response, status, headers, body}} ->
-        {status, headers, body}
-        # otherwise -> IO.inspect otherwise
-    after
-      0 -> flunk("timed out")
-    end
+    {status, headers, body} = Plug.Test.sent_resp(conn)
+    {status, headers, body}
   end
 
   defp matches_verb?(backend_verb, conn_verb) do
     backends = [%{verb: backend_verb, plug: MainProxy.Plug.Test}]
 
     # these are the required params..
-    req = build_req("http", conn_verb, "localhost", "/")
+    conn = build_req("http", conn_verb, "localhost", "/")
 
-    {:ok, _req, {_handler, _opts}} = MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+    updated_opts = MainProxy.Plug.init(backends: backends)
+    conn = MainProxy.Plug.call(conn, updated_opts)
 
-    my_pid = self()
-    stream_id = 1
-
-    receive do
-      {{^my_pid, ^stream_id}, {:response, status, headers, body}} ->
-        {status, headers, body}
-        # otherwise -> IO.inspect otherwise
-    after
-      0 -> flunk("timed out")
-    end
+    {status, headers, body} = Plug.Test.sent_resp(conn)
+    {status, headers, body}
   end
 
   defp matches_all?(backend_verb, backend_host, backend_path, conn_verb, conn_host, conn_path) do
@@ -112,20 +95,13 @@ defmodule MainProxy.Cowboy2HandlerPlugTest do
     ]
 
     # these are the required params..
-    req = build_req("http", conn_verb, conn_host, conn_path)
+    conn = build_req("http", conn_verb, conn_host, conn_path)
 
-    {:ok, _req, {_handler, _opts}} = MainProxy.Cowboy2Handler.init(req, {nil, backends: backends})
+    updated_opts = MainProxy.Plug.init(backends: backends)
+    conn = MainProxy.Plug.call(conn, updated_opts)
 
-    my_pid = self()
-    stream_id = 1
-
-    receive do
-      {{^my_pid, ^stream_id}, {:response, status, headers, body}} ->
-        {status, headers, body}
-        # otherwise -> IO.inspect otherwise
-    after
-      0 -> flunk("timed out")
-    end
+    {status, headers, body} = Plug.Test.sent_resp(conn)
+    {status, headers, body}
   end
 
   defp host_generator do
@@ -137,16 +113,28 @@ defmodule MainProxy.Cowboy2HandlerPlugTest do
 
   defp path_generator do
     string([?a..?z, ?/, ?0..?9])
+    # Plug requires that the path always start with /
+    |> map(fn
+      "/" <> _ = path -> path
+      path -> "/" <> path
+    end)
   end
 
   defp verb_generator do
-    member_of(["get", "post", "put", "head", "delete", "patch"])
+    member_of(["GET", "POST", "PUT", "HEAD", "DELETE", "PATCH"])
   end
 
   property "all domains match themselves" do
     check all host <- host_generator() do
       {status, _headers, _body} = matches_domain?(host, host)
-      assert status == "200 OK"
+      assert status == 200
+    end
+  end
+
+  property "all domains match themselves phoenix_endpoint" do
+    check all host <- host_generator() do
+      {status, _headers, _body} = matches_domain_phoenix_endpoint?(host, host)
+      assert status == 200
     end
   end
 
@@ -154,35 +142,35 @@ defmodule MainProxy.Cowboy2HandlerPlugTest do
     # TODO: include hyphens?
     check all host <- host_generator() do
       {status, _headers, _body} = matches_host?(Regex.compile!(host), host)
-      assert status == "200 OK"
+      assert status == 200
     end
   end
 
   property "all hosts match unspecified host" do
     check all host <- host_generator() do
       {status, _headers, _body} = matches_host?(nil, host)
-      assert status == "200 OK"
+      assert status == 200
     end
   end
 
   property "all hosts match subset" do
     check all host <- host_generator() do
       {status, _headers, _body} = matches_host?(Regex.compile!(String.slice(host, 1..-1)), host)
-      assert status == "200 OK"
+      assert status == 200
     end
   end
 
   property "all hosts match empty string" do
     check all host <- host_generator() do
       {status, _headers, _body} = matches_host?(Regex.compile!(""), host)
-      assert status == "200 OK"
+      assert status == 200
     end
   end
 
   property "no hosts match" do
     check all host <- host_generator() do
       {status, _headers, _body} = matches_host?(Regex.compile!("#{host}extra"), host)
-      assert status == "404 Not Found"
+      assert status == 404
     end
   end
 
@@ -191,7 +179,7 @@ defmodule MainProxy.Cowboy2HandlerPlugTest do
       {status, _headers, _body} =
         matches_path?(Regex.compile!("^" <> String.slice(path, 0..1)), path)
 
-      assert status == "200 OK"
+      assert status == 200
     end
   end
 
@@ -200,7 +188,7 @@ defmodule MainProxy.Cowboy2HandlerPlugTest do
       {status, _headers, _body} =
         matches_verb?(Regex.compile!(verb, [:caseless]), String.upcase(verb))
 
-      assert status == "200 OK"
+      assert status == 200
     end
   end
 
@@ -218,7 +206,7 @@ defmodule MainProxy.Cowboy2HandlerPlugTest do
           path
         )
 
-      assert status == "200 OK"
+      assert status == 200
     end
   end
 
@@ -236,13 +224,7 @@ defmodule MainProxy.Cowboy2HandlerPlugTest do
           path
         )
 
-      assert status == "404 Not Found"
+      assert status == 404
     end
-  end
-
-  def pid_from_string("#PID" <> string) do
-    string
-    |> :erlang.binary_to_list()
-    |> :erlang.list_to_pid()
   end
 end
