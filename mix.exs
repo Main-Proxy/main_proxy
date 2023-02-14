@@ -43,6 +43,7 @@ defmodule MainProxy.MixProject do
     [
       {:plug_cowboy, "~> 2.0"},
       {:phoenix, "~> 1.4"},
+      {:telemetry, "~> 1.1"},
 
       # for hex.pm
       {:ex_doc, ">= 0.0.0", only: :dev},
