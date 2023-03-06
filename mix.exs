@@ -41,8 +41,8 @@ defmodule MainProxy.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:plug_cowboy, "~> 2.0"},
-      {:phoenix, "~> 1.4"},
+      {:plug_cowboy, ">= 2.6.0"},
+      {:phoenix, "~> 1.7"},
 
       # for hex.pm
       {:ex_doc, ">= 0.0.0", only: :dev},
