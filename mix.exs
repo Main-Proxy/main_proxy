@@ -42,7 +42,7 @@ defmodule MainProxy.MixProject do
   defp deps do
     [
       {:plug_cowboy, ">= 2.6.0"},
-      {:phoenix, "1.7.0-rc.2"},
+      {:phoenix, "~> 1.7"},
 
       # for hex.pm
       {:ex_doc, ">= 0.0.0", only: :dev},
