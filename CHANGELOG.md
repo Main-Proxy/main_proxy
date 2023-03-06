@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.3.0 - 2023-03-05
+
+New feature: Support Phoenix 1.7
+
+Breaking change: Only Phoenix 1.7 and higher is now supported, if you need to
+support an earlier version of Phoenix then you need to use an earlier version of
+MainProxy. This was necessary because Phoenix 1.7 had large changes in how
+websockets worked. See https://github.com/Main-Proxy/main_proxy/pull/31 for
+details.
+
 ## 0.2.0 - 2022-10-15
 
 Breaking change: Project has been renamed from `master_proxy` to `main_proxy`.
