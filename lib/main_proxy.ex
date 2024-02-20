@@ -62,7 +62,7 @@ defmodule MainProxy do
         backends
 
       :error ->
-        Logger.warn(
+        Logger.warning(
           "No backends specified. Either configure :main_proxy, :backends or define a " <>
             "`backend/0` function in your `Proxy` module."
         )
