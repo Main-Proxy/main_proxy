@@ -4,7 +4,7 @@ defmodule MainProxy.MixProject do
   def project do
     [
       app: :main_proxy,
-      version: "0.3.1",
+      version: "0.3.2",
       description:
         "Proxies requests to multiple apps. Useful for Gigalixir or Heroku deployment when just one web port is exposed. Works with phoenix endpoints, plugs, and websockets.",
       package: package(),
