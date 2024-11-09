@@ -99,7 +99,7 @@ config :my_app_members, MyAppMembersWeb.Endpoint, server: false
   - `:host`
   - `:path`
   - `:phoenix_endpoint` / `:plug`
-  - `:opts` - only for `:plug`
+  - `:opts` - plug call options.
 - `:log_requests` - `true` by default. Log the requests or not.
 
 <!-- MDOC !-->

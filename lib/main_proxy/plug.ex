@@ -13,11 +13,12 @@ defmodule MainProxy.Plug do
     backends = Keyword.fetch!(opts, :backends)
 
     backend = choose_backend(conn, backends)
+    opts = Map.get(backend, :opts, [])
     log_request("Backend chosen: #{inspect(backend)}")
 
     case backend do
-      %{phoenix_endpoint: phoenix_endpoint} -> phoenix_endpoint.call(conn, [])
-      %{plug: plug} -> plug.call(conn, [])
+      %{phoenix_endpoint: phoenix_endpoint} -> phoenix_endpoint.call(conn, opts)
+      %{plug: plug} -> plug.call(conn, opts)
     end
   end
 
