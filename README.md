@@ -88,6 +88,27 @@ config :my_app, MyAppWeb.Endpoint, server: false
 config :my_app_members, MyAppMembersWeb.Endpoint, server: false
 ```
 
+## Releases
+
+If you are running an umbrella project and you have chosen to add it as one of your child apps, then you will need to add your proxy child app to the releases specification in your umbrella's mix.exs file in order for main_proxy to work correctly in your releases.
+
+```elixir
+deps: deps(),
+releases: releases()
+...
+
+defp releases do
+  [
+    my_app: [
+      applications: [
+        my_proxy: :permanent
+        ...
+      ]
+    ]
+  ]
+end
+```
+
 ## Available Configuration Options
 
 - `:http` - the configuration for the HTTP server. It accepts all options as defined by [Plug.Cowboy](https://hexdocs.pm/plug_cowboy/).
