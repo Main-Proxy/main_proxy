@@ -88,6 +88,30 @@ config :my_app, MyAppWeb.Endpoint, server: false
 config :my_app_members, MyAppMembersWeb.Endpoint, server: false
 ```
 
+## Releases in an Umbrella Project
+
+If you are running an umbrella project and you have chosen to add it as one of your child apps, then
+you will need to add your proxy child app (in this example named `:my_proxy`) to the releases
+specification in your umbrella's `mix.exs` file in order for MainProxy to work correctly in your
+releases. There's some more discussion about this in this [ElixirForum post](https://elixirforum.com/t/how-can-you-run-multiple-applications-on-one-beam-instance-with-mainproxy/69419/4)
+
+```elixir
+deps: deps(),
+releases: releases()
+...
+
+defp releases do
+  [
+    my_app: [
+      applications: [
+        my_proxy: :permanent
+        ...
+      ]
+    ]
+  ]
+end
+```
+
 ## Available Configuration Options
 
 - `:http` - the configuration for the HTTP server. It accepts all options as defined by [Plug.Cowboy](https://hexdocs.pm/plug_cowboy/).
