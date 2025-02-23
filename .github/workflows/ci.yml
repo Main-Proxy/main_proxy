@@ -19,8 +19,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - elixir: 1.13.1
-            otp: 24.2
+          - elixir: 1.14.5
+            otp: 26.2.5.9
+          - elixir: 1.18.2
+            otp: 27.2.4
 
     steps:
     - uses: actions/checkout@v1
