@@ -38,7 +38,10 @@ jobs:
           ~/.mix
           deps
           _build
-        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        key: ${{ runner.os }}-elixir-${{ matrix.elixir }}-erlang-${{ matrix.otp }}-mix_lock-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-elixir-${{ matrix.elixir }}-erlang-${{ matrix.otp }}-
+          ${{ runner.os }}-
     - name: Install Dependencies
       run: |
         mix local.rebar --force
