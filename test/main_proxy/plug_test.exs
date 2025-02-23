@@ -155,7 +155,7 @@ defmodule MainProxy.PlugTest do
 
   property "all hosts match subset" do
     check all host <- host_generator() do
-      {status, _headers, _body} = matches_host?(Regex.compile!(String.slice(host, 1..-1)), host)
+      {status, _headers, _body} = matches_host?(Regex.compile!(String.slice(host, 1..-1//1)), host)
       assert status == 200
     end
   end

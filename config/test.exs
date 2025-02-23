@@ -14,4 +14,4 @@ config :phoenix, :json_library, Jason
 config :main_proxy,
   http: [:inet6, port: 5907]
 
-config :logger, level: :warn
+config :logger, level: :warning
